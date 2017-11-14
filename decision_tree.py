@@ -6,6 +6,7 @@ class Attribute:
     def __init__(self, name, categorical):
         self.name = name
         self.categorical=categorical
+        self.used = False
 
 
 def grow_decision_tree(x, y, attributes, default):
@@ -17,21 +18,30 @@ def grow_decision_tree(x, y, attributes, default):
     if len(np.unique(y)) == 1:
         return Node(y[0])
 
-    best = choose_best_attribute(attributes, x, y)
-    if attributes[best].categorical:
-        attributes.pop(best)
+    best_attribute_i, best_split_point = choose_best_attribute(attributes, x, y)
+    best_attribute = attributes[best_attribute_i]
+    best_attribute.used = True
+    tree = Node(best_attribute.name)
 
-    tree = Node(attributes[best].name)
+    if best_attribute.categorical:
 
-    vals, indices = np.unique(x[:,best], return_inverse=True)
-    for j in range(len(vals)):
-        val = vals[j]
-        examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] ==  j])
-        examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] ==  j])
+        vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
+        for j in range(len(vals)):
+            val = vals[j]
+            examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] == j])
+            examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
 
-        label = stats.mode(examples_y).mode[0]
-        subtree = grow_decision_tree(examples_x, examples_y, attributes, label)
-        subtree.parent = tree
+            label = stats.mode(examples_y).mode[0]
+            subtree = grow_decision_tree(examples_x, examples_y, attributes, label)
+            subtree.parent = tree
+    else:
+        for f in [lambda a,b: a<=b, lambda a,b: a>b]:
+            examples_x = np.vstack([x[i] for i in range(len(x)) if f(x[i,best_attribute_i], best_split_point)])
+            examples_y = np.hstack([y[i] for i in range(len(x)) if f(x[i,best_attribute_i], best_split_point)])
+
+            label = stats.mode(examples_y).mode[0]
+            subtree = grow_decision_tree(examples_x, examples_y, attributes, label)
+            subtree.parent = tree
 
     return tree
 
@@ -44,6 +54,9 @@ def choose_best_attribute(attributes, x, y):
     for attr_i in range(len(attributes)):
         sum = 0
         if attributes[attr_i].categorical:
+            if attributes[attr_i].used:
+                continue
+
             vals, indices = np.unique(x[:, attr_i], return_inverse=True)
 
             for j in range(len(vals)):
@@ -78,7 +91,7 @@ def choose_best_attribute(attributes, x, y):
                     best_attr_i = attr_i
                     best_split_point = split_point
 
-    return best_attr_i
+    return best_attr_i, best_split_point
 
 
 if __name__ == "__main__":
