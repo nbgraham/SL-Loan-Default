@@ -32,6 +32,7 @@ if __name__ == "__main__":
     tree.fit(x,y,attributes)
 
     new_x = [0, 1, 0]
-    result = tree.predict(new_x)
-
-    print(result)
+    probs = tree.predict_prob(new_x)
+    pred = tree.predict(new_x)
+    print(probs)
+    print(pred)

@@ -25,7 +25,7 @@ class DecisionTreeClassifier:
         for pre, fill, node in RenderTree(self.tree):
             print("%s%s" % (pre, node.name))
 
-    def predict(self,x):
+    def predict_prob(self,x):
         if self.tree is None:
             return None
 
@@ -37,6 +37,18 @@ class DecisionTreeClassifier:
                     break
 
         return c.prob
+
+    def predict(self, x):
+        probs = self.predict_prob(x)
+
+        pred = -1
+        max = 0
+        for (label,prob) in probs:
+            if prob > max:
+                max = prob
+                pred = label
+
+        return pred
 
     def grow_decision_tree(self, x, y, attributes, default, max_depth=None, label_prefix="", attr_used=None):
             if attr_used is None:
