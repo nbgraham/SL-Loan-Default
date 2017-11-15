@@ -14,7 +14,7 @@ class Attribute:
 def grow_decision_tree(x, y, attributes, default, label_prefix=""):
     if len(x) == 0:
         return Node(label_prefix + str(default))
-    elif len(attributes) == 0:
+    elif np.all([att.used for att in attributes]):
         return Node(label_prefix + str(default))
 
     if len(np.unique(y)) == 1:
@@ -50,13 +50,11 @@ def grow_decision_tree(x, y, attributes, default, label_prefix=""):
 
 def choose_best_attribute(attributes, x, y, categorical=True):
     min = 10**10
-    max = 0
     best_attr_i = -1
     best_split_point = -1
 
     for attr_i in range(len(attributes)):
         sum = 0
-        rem = 0
         if attributes[attr_i].categorical:
             if attributes[attr_i].used:
                 continue
@@ -67,19 +65,15 @@ def choose_best_attribute(attributes, x, y, categorical=True):
                 examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
 
                 if categorical:
-                    rem += len(examples_y)/len(y)*inf_a(examples_y)
-
-                    if rem > max:
-                        max = rem
-                        best_attr_i = attr_i
+                    sum += len(examples_y)/len(y)*inf_a(examples_y)
                 else:
                     avg_y = np.mean(examples_y)
                     for yi in examples_y:
                         sum += (yi-avg_y)**2
 
-                    if sum < min:
-                        min = sum
-                        best_attr_i = attr_i
+            if sum < min:
+                min = sum
+                best_attr_i = attr_i
         else:
             values = sorted(x[:,attr_i])
             for split_point in values:
@@ -93,12 +87,7 @@ def choose_best_attribute(attributes, x, y, categorical=True):
                     before_split_y = y[before_split_indexes]
                     after_split_y = y[after_split_indexes]
 
-                    rem = len(before_split_y)/len(y)*inf_a(before_split_y) + len(after_split_y)/len(y)*inf_a(after_split_y)
-
-                    if rem > max:
-                        max = rem
-                        best_attr_i = attr_i
-                        best_split_point = split_point
+                    sum = len(before_split_y)/len(y)*inf_a(before_split_y) + len(after_split_y)/len(y)*inf_a(after_split_y)
                 else:
                     before_split_avg = np.mean(y[before_split_indexes])
                     after_split_avg = np.mean(y[after_split_indexes])
@@ -109,10 +98,10 @@ def choose_best_attribute(attributes, x, y, categorical=True):
                     for yi in y[after_split_indexes]:
                         sum += (yi-after_split_avg)**2
 
-                    if sum < min:
-                        min = sum
-                        best_attr_i = attr_i
-                        best_split_point = split_point
+                if sum < min:
+                    min = sum
+                    best_attr_i = attr_i
+                    best_split_point = split_point
 
     return best_attr_i, best_split_point
 
@@ -132,17 +121,30 @@ def inf(*args):
 
 if __name__ == "__main__":
     # data = np.array([[1,83, 85],[1,85,58],[0,102,102],[0,101,99]])
+    # data = np.array(([
+    #     [6,1,4],
+    #     [5,0,2],
+    #     [3,1,-3],
+    #     [2,0,3],
+    #     [1,0,1]
+    # ]))
+
     data = np.array(([
-        [6,1,4],
-        [5,0,2],
-        [3,1,-3],
-        [2,0,3],
-        [1,0,1]
+        [0, 1, 0, 1],
+        [0, 0, 1, 1],
+        [0, 0, 0, 2],
+        [0, 1, 1, 3],
+        [0, 0, 1, 1],
+        [0, 1, 1, 1],
+        [1, 0, 1, 3],
+        [1, 1, 0, 2],
+        [1, 1, 1, 2],
+        [1, 1, 0, 2]
     ]))
 
-    x = data[:,0:2]
-    y = data[:,2]
-    attributes = [Attribute("A", False),Attribute("B", True)]
+    x = data[:,0:3]
+    y = data[:,3]
+    attributes = [Attribute("Late?", True), Attribute("Have Milk?", True), Attribute("Well-Rested?", True)]
 
     tree = grow_decision_tree(x,y,attributes,0)
     for pre, fill, node in RenderTree(tree):
