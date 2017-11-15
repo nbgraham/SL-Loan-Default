@@ -98,7 +98,7 @@ class DecisionTreeClassifier:
 
                     label = stats.mode(examples_y).mode[0]
                     subtree = self.grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
-                    subtree.test = reg_test(f, best_attribute_i, best_split_point)
+                    subtree.test = reg_test(f[1], best_attribute_i, best_split_point)
 
                     y_vals, counts = np.unique(examples_y, return_counts=True)
                     subtree.prob = [(y_vals[i], counts[i]/len(examples_y)) for i in range(len(y_vals))]
