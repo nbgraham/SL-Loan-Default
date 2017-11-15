@@ -18,19 +18,27 @@ class DecisionTreeClassifier:
         self.max_depth = max_depth
         self.min_split_size = min_split_size
         self.remainder_score=remainder_score
+        self.x_shape = None
 
     def fit(self,x,y, attributes):
+        x = np.array(x)
+        self.x_shape = x[0].shape
         self.tree = self.grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth)
 
         for pre, fill, node in RenderTree(self.tree):
             print("%s%s" % (pre, node.name))
 
     def predict_prob(self,x):
+        x = np.array(x)
+
+        if x.shape != self.x_shape:
+            raise ValueError("Expected x with shape {} but got {}".format(self.x_shape, x.shape))
+
         if self.tree is None:
             return None
 
         c = self.tree
-        while (c.children):
+        while c.children:
             for ci in c.children:
                 if ci.test(x):
                     c = ci
