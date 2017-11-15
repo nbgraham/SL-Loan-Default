@@ -9,19 +9,19 @@ class Attribute:
         self.used = False
 
 
-def grow_decision_tree(x, y, attributes, default):
+def grow_decision_tree(x, y, attributes, default, label_prefix=""):
     if len(x) == 0:
-        return Node(default)
+        return Node(label_prefix + str(default))
     elif len(attributes) == 0:
-        return Node(default)
+        return Node(label_prefix + str(default))
 
     if len(np.unique(y)) == 1:
-        return Node(y[0])
+        return Node(label_prefix + str(y[0]))
 
     best_attribute_i, best_split_point = choose_best_attribute(attributes, x, y)
     best_attribute = attributes[best_attribute_i]
     best_attribute.used = True
-    tree = Node(best_attribute.name)
+    tree = Node(label_prefix + best_attribute.name)
 
     if best_attribute.categorical:
 
@@ -32,15 +32,15 @@ def grow_decision_tree(x, y, attributes, default):
             examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
 
             label = stats.mode(examples_y).mode[0]
-            subtree = grow_decision_tree(examples_x, examples_y, attributes, label)
+            subtree = grow_decision_tree(examples_x, examples_y, attributes, label, label_prefix="=" + str(val) + ". ")
             subtree.parent = tree
     else:
-        for f in [lambda a,b: a<=b, lambda a,b: a>b]:
-            examples_x = np.vstack([x[i] for i in range(len(x)) if f(x[i,best_attribute_i], best_split_point)])
-            examples_y = np.hstack([y[i] for i in range(len(x)) if f(x[i,best_attribute_i], best_split_point)])
+        for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
+            examples_x = np.vstack([x[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+            examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
 
             label = stats.mode(examples_y).mode[0]
-            subtree = grow_decision_tree(examples_x, examples_y, attributes, label)
+            subtree = grow_decision_tree(examples_x, examples_y, attributes, label, label_prefix=f[0] + str(best_split_point) + ". ")
             subtree.parent = tree
 
     return tree
