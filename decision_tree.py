@@ -99,8 +99,8 @@ class DecisionTreeClassifier:
 
             return tree
 
-    def choose_best_attribute(self, attributes, attr_used, x, y, categorical=True):
-        min = 10 ** 10
+    def choose_best_attribute(self, attributes, attr_used, x, y):
+        min_rem = 10 ** 10
         best_attr_i = -1
         best_split_point = -1
 
@@ -108,9 +108,11 @@ class DecisionTreeClassifier:
             score = inf_a
         elif self.remainder_score == 'gini':
             score = gin_a
+        else:
+            raise ValueError("Invalid remainder_score: %s".format(self.remainder_score))
 
         for attr_i in range(len(attributes)):
-            sum = 0
+            rem = 0
             if attributes[attr_i].categorical:
                 if attr_used[attr_i]:
                     continue
@@ -119,16 +121,10 @@ class DecisionTreeClassifier:
 
                 for j in range(len(vals)):
                     examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
+                    rem += len(examples_y) / len(y) * score(examples_y)
 
-                    if categorical:
-                        sum += len(examples_y) / len(y) * score(examples_y)
-                    else:
-                        avg_y = np.mean(examples_y)
-                        for yi in examples_y:
-                            sum += (yi - avg_y) ** 2
-
-                if sum < min:
-                    min = sum
+                if rem < min_rem:
+                    min_rem = rem
                     best_attr_i = attr_i
             else:
                 values = sorted(x[:, attr_i])
@@ -139,24 +135,68 @@ class DecisionTreeClassifier:
                     if np.all(before_split_indexes) or np.all(after_split_indexes):
                         continue
 
-                    if categorical:
-                        before_split_y = y[before_split_indexes]
-                        after_split_y = y[after_split_indexes]
+                    before_split_y = y[before_split_indexes]
+                    after_split_y = y[after_split_indexes]
+                    rem = len(before_split_y) / len(y) * score(before_split_y) \
+                          + len(after_split_y) / len(y) * score(after_split_y)
 
-                        sum = len(before_split_y) / len(y) * score(before_split_y) + len(after_split_y) / len(
-                            y) * score(after_split_y)
-                    else:
-                        before_split_avg = np.mean(y[before_split_indexes])
-                        after_split_avg = np.mean(y[after_split_indexes])
+                    if rem < min_rem:
+                        min_rem = rem
+                        best_attr_i = attr_i
+                        best_split_point = split_point
 
-                        sum = 0
-                        for yi in y[before_split_indexes]:
-                            sum += (yi - before_split_avg) ** 2
-                        for yi in y[after_split_indexes]:
-                            sum += (yi - after_split_avg) ** 2
+        return best_attr_i, best_split_point
 
-                    if sum < min:
-                        min = sum
+
+class DecisionTreeRegressor(DecisionTreeClassifier):
+    def choose_best_attribute(self, attributes, attr_used, x, y):
+        min_rem = 10 ** 10
+        best_attr_i = -1
+        best_split_point = -1
+
+        if self.remainder_score == 'entropy':
+            score = inf_a
+        elif self.remainder_score == 'gini':
+            score = gin_a
+
+        for attr_i in range(len(attributes)):
+            rem = 0
+            if attributes[attr_i].categorical:
+                if attr_used[attr_i]:
+                    continue
+
+                vals, indices = np.unique(x[:, attr_i], return_inverse=True)
+
+                for j in range(len(vals)):
+                    examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
+                    avg_y = np.mean(examples_y)
+                    for yi in examples_y:
+                        rem += (yi - avg_y) ** 2
+
+                if rem < min_rem:
+                    min_rem = rem
+                    best_attr_i = attr_i
+            else:
+                values = sorted(x[:, attr_i])
+                for split_point in values:
+                    before_split_indexes = x[:, attr_i] <= split_point
+                    after_split_indexes = x[:, attr_i] > split_point
+
+                    if np.all(before_split_indexes) or np.all(after_split_indexes):
+                        # split leaves on side empty
+                        continue
+
+                    before_split_avg = np.mean(y[before_split_indexes])
+                    after_split_avg = np.mean(y[after_split_indexes])
+
+                    rem = 0
+                    for yi in y[before_split_indexes]:
+                        rem += (yi - before_split_avg) ** 2
+                    for yi in y[after_split_indexes]:
+                        rem += (yi - after_split_avg) ** 2
+
+                    if rem < min_rem:
+                        min_rem = rem
                         best_attr_i = attr_i
                         best_split_point = split_point
 
