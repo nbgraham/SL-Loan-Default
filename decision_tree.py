@@ -36,7 +36,7 @@ class DecisionTreeClassifier:
                     c = ci
                     break
 
-        return c.name
+        return c.prob
 
     def grow_decision_tree(self, x, y, attributes, default, max_depth=None, label_prefix="", attr_used=None):
             if attr_used is None:
@@ -68,6 +68,9 @@ class DecisionTreeClassifier:
                     label = stats.mode(examples_y).mode[0]
                     subtree = self.grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, label_prefix="=" + str(val) + ". ", attr_used=attr_used)
                     subtree.test = cat_test(best_attribute_i, val)
+
+                    y_vals, counts = np.unique(examples_y, return_counts=True)
+                    subtree.prob = [(y_vals[i], counts[i] / len(examples_y)) for i in range(len(y_vals))]
                     subtree.parent = tree
             else:
                 for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
@@ -77,6 +80,9 @@ class DecisionTreeClassifier:
                     label = stats.mode(examples_y).mode[0]
                     subtree = self.grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
                     subtree.test = reg_test(f, best_attribute_i, best_split_point)
+
+                    y_vals, counts = np.unique(examples_y, return_counts=True)
+                    subtree.prob = [(y_vals[i], counts[i]/len(examples_y)) for i in range(len(y_vals))]
                     subtree.parent = tree
 
             return tree
