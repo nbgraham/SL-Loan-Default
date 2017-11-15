@@ -10,12 +10,13 @@ class Attribute:
         self.categorical=categorical
 
 class DecisionTreeClassifier:
-    def __init__(self, max_depth=None):
+    def __init__(self, max_depth=None, min_split_size=None):
         self.tree = None
         self.max_depth = max_depth
+        self.min_split_size = min_split_size
 
     def fit(self,x,y, attributes):
-        self.tree = grow_decision_tree(x,y,attributes,y[0], self.max_depth)
+        self.tree = grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth, min_split_size=self.min_split_size)
 
         for pre, fill, node in RenderTree(self.tree):
             print("%s%s" % (pre, node.name))
@@ -33,13 +34,14 @@ class DecisionTreeClassifier:
 
         return c.name
 
-def grow_decision_tree(x, y, attributes, default, max_depth, label_prefix="", attr_used=None):
+def grow_decision_tree(x, y, attributes, default, max_depth=None, min_split_size=None, label_prefix="", attr_used=None):
         if attr_used is None:
             attr_used = [False]*len(attributes)
 
         if (len(x) == 0) or \
             (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
-            (max_depth is not None and max_depth < 1):
+            (max_depth is not None and max_depth < 1) or \
+            (min_split_size is not None and len(x) < min_split_size):
             return Node(label_prefix + str(default))
 
         if len(np.unique(y)) == 1:
@@ -60,7 +62,7 @@ def grow_decision_tree(x, y, attributes, default, max_depth, label_prefix="", at
                 examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
 
                 label = stats.mode(examples_y).mode[0]
-                subtree = grow_decision_tree(examples_x, examples_y, attributes, label, next_depth, label_prefix="=" + str(val) + ". ", attr_used=attr_used)
+                subtree = grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, min_split_size=min_split_size, label_prefix="=" + str(val) + ". ", attr_used=attr_used)
                 subtree.test = cat_test(best_attribute_i, val)
                 subtree.parent = tree
         else:
@@ -69,7 +71,7 @@ def grow_decision_tree(x, y, attributes, default, max_depth, label_prefix="", at
                 examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
 
                 label = stats.mode(examples_y).mode[0]
-                subtree = grow_decision_tree(examples_x, examples_y, attributes, label, next_depth, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
+                subtree = grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, min_split_size=min_split_size, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
                 subtree.test = reg_test(f, best_attribute_i, best_split_point)
                 subtree.parent = tree
 
