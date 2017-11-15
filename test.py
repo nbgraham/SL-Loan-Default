@@ -3,9 +3,9 @@ from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeClassifier
 from decision_tree import DecisionTreeClassifier as MyTree, Attribute
 
-if __name__ == "__main__":
-    clf = DecisionTreeClassifier(random_state=0)
-    iris = load_iris()
+
+def compare(iris, max_depth=100):
+    clf = DecisionTreeClassifier(random_state=0, max_depth=max_depth)
 
     clf.fit(iris.data, iris.target)
     a = clf.predict_proba(iris.data[94].reshape(1, -1))
@@ -19,10 +19,42 @@ if __name__ == "__main__":
         Attribute("Petal Width", False)
     ]
 
-    myclf = MyTree()
+    myclf = MyTree(max_depth=max_depth)
     myclf.fit(iris.data, iris.target, attributes)
 
-    a = myclf.predict_prob(iris.data[94])
+    them_bss = 0
+    my_bss = 0
+    for i in range(len(iris.data)):
+        me = myclf.predict_prob(iris.data[i])
+        them = clf.predict_proba(iris.data[i].reshape(1, -1))
 
-    print(a)
+        actual = iris.target[i]
+        my_prob = [prob for (pred, prob) in me if pred == actual]
+        my_prob = my_prob[0] if len(my_prob) == 1 else 0
+        them_prob = them[0][actual]
 
+        my_bss += (1-my_prob)**2
+        them_bss += (1-them_prob)**2
+
+    them_bss /= len(iris.target)
+    my_bss /= len(iris.target)
+
+    print("Me: ", my_bss)
+    print("Them: ", them_bss)
+
+    return my_bss, them_bss
+
+
+if __name__ == "__main__":
+    iris_ = load_iris()
+
+    good = True
+    for i in range(10):
+        me, them = compare(iris_,i+1)
+
+        if me != them:
+            print("Diff!")
+            good = False
+
+    if good:
+        print("Equal!")
