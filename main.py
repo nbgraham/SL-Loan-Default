@@ -34,7 +34,7 @@ if __name__ == "__main__":
     tree = DecisionTreeClassifier()
     tree.fit(x,y,attributes)
 
-    new_x = [0, 1, 0]
+    new_x = [2, 3, 1, 0]
     probs = tree.predict_prob(new_x)
     pred = tree.predict(new_x)
     print(probs)
