@@ -29,13 +29,12 @@ class DecisionTreeClassifier:
             print("%s%s" % (pre, node.name))
 
     def predict_prob(self,x):
-        x = np.array(x)
+        if self.tree is None:
+            raise UnboundLocalError("This object has no tree. This decision tree has not been fit, so it cannot predict.")
 
+        x = np.array(x)
         if x.shape != self.x_shape:
             raise ValueError("Expected x with shape {} but got {}".format(self.x_shape, x.shape))
-
-        if self.tree is None:
-            return None
 
         c = self.tree
         while c.children:
