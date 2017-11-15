@@ -71,7 +71,8 @@ def choose_best_attribute(attributes, x, y):
                 best_attr_i = attr_i
         else:
             values = sorted(x[:,attr_i])
-            for split_point in [(values[i] + values[i+1])/2 for i in range(len(values)-1)]:
+            for split_point in values:
+                sum=0
                 before_split_indexes = x[:,attr_i]<=split_point
                 after_split_indexes = x[:,attr_i]>split_point
 
@@ -95,12 +96,19 @@ def choose_best_attribute(attributes, x, y):
 
 
 if __name__ == "__main__":
-    data = np.array([[1,83, 85],[1,85,58],[0,102,102],[0,101,99]])
+    # data = np.array([[1,83, 85],[1,85,58],[0,102,102],[0,101,99]])
+    data = np.array(([
+        [6,1,4],
+        [5,0,2],
+        [3,1,-3],
+        [2,0,3],
+        [1,0,1]
+    ]))
 
     x = data[:,0:2]
     y = data[:,2]
-    attributes = [Attribute("Season", True),Attribute("Yest High", False)]
+    attributes = [Attribute("A", False),Attribute("B", True)]
 
-    tree = grow_decision_tree(x,y,attributes,50)
+    tree = grow_decision_tree(x,y,attributes,0)
     for pre, fill, node in RenderTree(tree):
         print("%s%s" % (pre, node.name))
