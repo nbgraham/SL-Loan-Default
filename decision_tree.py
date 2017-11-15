@@ -1,7 +1,7 @@
 from anytree import Node, RenderTree
 import numpy as np
 from scipy import stats
-from math import log2
+from information_gain import inf_a
 
 
 class Attribute:
@@ -9,45 +9,77 @@ class Attribute:
         self.name = name
         self.categorical=categorical
 
+class DecisionTreeClassifier:
+    def __init__(self):
+        self.tree = None
+
+    def fit(self,x,y, attributes):
+        self.tree = grow_decision_tree(x,y,attributes,y[0])
+
+        for pre, fill, node in RenderTree(self.tree):
+            print("%s%s" % (pre, node.name))
+
+    def predict(self,x):
+        if self.tree is None:
+            return None
+
+        c = self.tree
+        while (c.children):
+            for ci in c.children:
+                if ci.test(x):
+                    c = ci
+                    break
+
+        return c.name
 
 def grow_decision_tree(x, y, attributes, default, label_prefix="", attr_used=None):
-    if attr_used is None:
-        attr_used = [False]*len(attributes)
+        if attr_used is None:
+            attr_used = [False]*len(attributes)
 
-    if len(x) == 0:
-        return Node(label_prefix + str(default))
-    elif np.all([att.categorical for att in attributes]) and np.all(attr_used):
-        return Node(label_prefix + str(default))
+        if len(x) == 0:
+            return Node(label_prefix + str(default))
+        elif np.all([att.categorical for att in attributes]) and np.all(attr_used):
+            return Node(label_prefix + str(default))
 
-    if len(np.unique(y)) == 1:
-        return Node(label_prefix + str(y[0]))
+        if len(np.unique(y)) == 1:
+            return Node(label_prefix + str(y[0]))
 
-    best_attribute_i, best_split_point = choose_best_attribute(attributes, attr_used, x, y)
-    best_attribute = attributes[best_attribute_i]
-    attr_used = attr_used[:]
-    attr_used[best_attribute_i] = True
-    tree = Node(label_prefix + best_attribute.name)
+        best_attribute_i, best_split_point = choose_best_attribute(attributes, attr_used, x, y)
+        best_attribute = attributes[best_attribute_i]
+        attr_used = attr_used[:]
+        attr_used[best_attribute_i] = True
+        tree = Node(label_prefix + best_attribute.name)
 
-    if best_attribute.categorical:
-        vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
-        for j in range(len(vals)):
-            val = vals[j]
-            examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] == j])
-            examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
+        if best_attribute.categorical:
+            vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
+            for j in range(len(vals)):
+                val = vals[j]
+                examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] == j])
+                examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
 
-            label = stats.mode(examples_y).mode[0]
-            subtree = grow_decision_tree(examples_x, examples_y, attributes, label, label_prefix="=" + str(val) + ". ", attr_used=attr_used)
-            subtree.parent = tree
-    else:
-        for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
-            examples_x = np.vstack([x[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
-            examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+                label = stats.mode(examples_y).mode[0]
+                subtree = grow_decision_tree(examples_x, examples_y, attributes, label, label_prefix="=" + str(val) + ". ", attr_used=attr_used)
+                subtree.test = cat_test(best_attribute_i, val)
+                subtree.parent = tree
+        else:
+            for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
+                examples_x = np.vstack([x[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+                examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
 
-            label = stats.mode(examples_y).mode[0]
-            subtree = grow_decision_tree(examples_x, examples_y, attributes, label, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
-            subtree.parent = tree
+                label = stats.mode(examples_y).mode[0]
+                subtree = grow_decision_tree(examples_x, examples_y, attributes, label, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
+                subtree.test = reg_test(f, best_attribute_i, best_split_point)
+                subtree.parent = tree
 
-    return tree
+        return tree
+
+
+def reg_test(f, best_attr_i, split_point):
+    return lambda p: f(p[best_attr_i],split_point)
+
+
+def cat_test(best_attr_i, val):
+    return lambda p: p[best_attr_i] == val
 
 
 def choose_best_attribute(attributes, attr_used, x, y, categorical=True):
@@ -108,46 +140,3 @@ def choose_best_attribute(attributes, attr_used, x, y, categorical=True):
     return best_attr_i, best_split_point
 
 
-def inf_a(array):
-    vals, counts = np.unique(array, return_counts=True)
-    fractions = [i/len(array) for i in counts]
-    return inf(*fractions)
-
-
-def inf(*args):
-    sum = 0
-    for a in args:
-        sum += -1*a*log2(a)
-    return sum
-
-
-if __name__ == "__main__":
-    # data = np.array([[1,83, 85],[1,85,58],[0,102,102],[0,101,99]])
-    # data = np.array(([
-    #     [6,1,4],
-    #     [5,0,2],
-    #     [3,1,-3],
-    #     [2,0,3],
-    #     [1,0,1]
-    # ]))
-
-    data = np.array(([
-        [0, 1, 0, 1],
-        [0, 0, 1, 1],
-        [0, 0, 0, 2],
-        [0, 1, 1, 3],
-        [0, 0, 1, 1],
-        [0, 1, 1, 1],
-        [1, 0, 1, 3],
-        [1, 1, 0, 2],
-        [1, 1, 1, 2],
-        [1, 1, 0, 2]
-    ]))
-
-    x = data[:,0:3]
-    y = data[:,3]
-    attributes = [Attribute("Late?", True), Attribute("Have Milk?", True), Attribute("Well-Rested?", True)]
-
-    tree = grow_decision_tree(x,y,attributes,0)
-    for pre, fill, node in RenderTree(tree):
-        print("%s%s" % (pre, node.name))
