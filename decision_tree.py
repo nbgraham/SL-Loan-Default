@@ -1,6 +1,8 @@
 from anytree import Node, RenderTree
 import numpy as np
 from scipy import stats
+from math import log2
+
 
 class Attribute:
     def __init__(self, name, categorical):
@@ -46,13 +48,15 @@ def grow_decision_tree(x, y, attributes, default, label_prefix=""):
     return tree
 
 
-def choose_best_attribute(attributes, x, y):
+def choose_best_attribute(attributes, x, y, categorical=True):
     min = 10**10
+    max = 0
     best_attr_i = -1
     best_split_point = -1
 
     for attr_i in range(len(attributes)):
         sum = 0
+        rem = 0
         if attributes[attr_i].categorical:
             if attributes[attr_i].used:
                 continue
@@ -61,38 +65,69 @@ def choose_best_attribute(attributes, x, y):
 
             for j in range(len(vals)):
                 examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
-                avg_y = np.mean(examples_y)
 
-                for yi in examples_y:
-                    sum += (yi-avg_y)**2
+                if categorical:
+                    rem += len(examples_y)/len(y)*inf_a(examples_y)
 
-            if sum < min:
-                min = sum
-                best_attr_i = attr_i
+                    if rem > max:
+                        max = rem
+                        best_attr_i = attr_i
+                else:
+                    avg_y = np.mean(examples_y)
+                    for yi in examples_y:
+                        sum += (yi-avg_y)**2
+
+                    if sum < min:
+                        min = sum
+                        best_attr_i = attr_i
         else:
             values = sorted(x[:,attr_i])
             for split_point in values:
-                sum=0
                 before_split_indexes = x[:,attr_i]<=split_point
                 after_split_indexes = x[:,attr_i]>split_point
 
                 if np.all(before_split_indexes) or np.all(after_split_indexes):
                     continue
 
-                before_split_avg = np.mean(y[before_split_indexes])
-                after_split_avg = np.mean(y[after_split_indexes])
+                if categorical:
+                    before_split_y = y[before_split_indexes]
+                    after_split_y = y[after_split_indexes]
 
-                for yi in y[before_split_indexes]:
-                    sum += (yi-before_split_avg)**2
-                for yi in y[after_split_indexes]:
-                    sum += (yi-after_split_avg)**2
+                    rem = len(before_split_y)/len(y)*inf_a(before_split_y) + len(after_split_y)/len(y)*inf_a(after_split_y)
 
-                if sum < min:
-                    min = sum
-                    best_attr_i = attr_i
-                    best_split_point = split_point
+                    if rem > max:
+                        max = rem
+                        best_attr_i = attr_i
+                        best_split_point = split_point
+                else:
+                    before_split_avg = np.mean(y[before_split_indexes])
+                    after_split_avg = np.mean(y[after_split_indexes])
+
+                    sum=0
+                    for yi in y[before_split_indexes]:
+                        sum += (yi-before_split_avg)**2
+                    for yi in y[after_split_indexes]:
+                        sum += (yi-after_split_avg)**2
+
+                    if sum < min:
+                        min = sum
+                        best_attr_i = attr_i
+                        best_split_point = split_point
 
     return best_attr_i, best_split_point
+
+
+def inf_a(array):
+    vals, counts = np.unique(array, return_counts=True)
+    fractions = [i/len(array) for i in counts]
+    return inf(*fractions)
+
+
+def inf(*args):
+    sum = 0
+    for a in args:
+        sum += -1*a*log2(a)
+    return sum
 
 
 if __name__ == "__main__":
