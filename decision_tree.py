@@ -107,17 +107,20 @@ class DecisionTreeClassifier:
 
             return tree
 
-    def choose_best_attribute(self, attributes, attr_used, x, y):
-        min_rem = 10 ** 10
-        best_attr_i = -1
-        best_split_point = -1
-
+    def get_score_function(self):
         if self.remainder_score == 'entropy':
             score = inf_a
         elif self.remainder_score == 'gini':
             score = gin_a
         else:
-            raise ValueError("Invalid remainder_score: %s".format(self.remainder_score))
+            raise ValueError("Invalid remainder_score: {}".format(self.remainder_score))
+        return score
+
+    def choose_best_attribute(self, attributes, attr_used, x, y):
+        min_rem = 10 ** 10
+        best_attr_i = -1
+        best_split_point = -1
+        score = self.get_score_function()
 
         for attr_i in range(len(attributes)):
             rem = 0
@@ -161,11 +164,7 @@ class DecisionTreeRegressor(DecisionTreeClassifier):
         min_rem = 10 ** 10
         best_attr_i = -1
         best_split_point = -1
-
-        if self.remainder_score == 'entropy':
-            score = inf_a
-        elif self.remainder_score == 'gini':
-            score = gin_a
+        score = self.get_score_function()
 
         for attr_i in range(len(attributes)):
             rem = 0
