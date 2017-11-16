@@ -36,8 +36,8 @@ def test_decision_tree(data, attributes):
 def test_random_forests(data, attributes):
     good = True
 
-    ns_trees = [j+2 for j in range(8,2)]
-    _max_depths = [i+1 for i in range(10,3)]
+    ns_trees = range(2,8,2)
+    _max_depths = range(1,9,3)
     fs = ['gini', 'entropy']
 
     total = len(ns_trees)*len(_max_depths)*len(fs)
@@ -48,7 +48,7 @@ def test_random_forests(data, attributes):
                 i += 1
                 print("Run {}/{}".format(i, total))
 
-                same = compare_random_forests(data, attributes, max_depth, f=f, n_trees=n_trees)
+                same = compare_random_forests(data, attributes, max_depth=max_depth, f=f, n_trees=n_trees)
                 if not same:
                     print("------------ Diff! ----------")
                     good = False
@@ -57,12 +57,14 @@ def test_random_forests(data, attributes):
         print("Equal!")
 
 
-def compare_random_forests(iris, n_trees=10, max_depth=100, f='gini', min_samples=None):
-    them = RandomForestClassifier(n_estimators=n_trees, max_depth=max_depth, criterion=f, min_samples_split=min_samples)
-    them.fit(iris.data, iris.target)
-
-    me = MyRandom(n_trees=n_trees, max_depth=max_depth, remainder_score=f, min_samples=min_samples)
+def compare_random_forests(iris, attributes, n_trees=10, max_depth=100, f='gini', min_samples=None):
+    me = MyRandom(n_trees=n_trees, max_depth=max_depth, remainder_score=f, min_split_size=min_samples)
     me.fit(iris.data, iris.target, attributes)
+
+    me_preds = me.predict_prob(iris.data)
+
+    res = compare_bss(iris.target, me_preds)
+    print("BSS: ", res[0])
 
     return False
 
@@ -138,4 +140,4 @@ if __name__ == "__main__":
     #     Attribute("Petal Width", False)
     # ]
 
-    test_decision_tree(iris_, attributes)
+    test_random_forests(iris_, attributes)
