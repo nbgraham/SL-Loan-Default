@@ -1,11 +1,12 @@
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 
 from analysis import analyze
 from decision_tree import DecisionTreeClassifier as MyTree, Attribute
-from random_forest import RandomForestClassifier
+from random_forest import RandomForestClassifier as MyRandom
 
 
 def test_decision_tree(data, attributes):
@@ -30,11 +31,39 @@ def test_decision_tree(data, attributes):
     if good:
         print("Equal!")
 
-def compare_random_forests(iris, n_trees=10, max_depth=100, f='gini', min_samples=1):
-    other_tree = RandomForestClassifier(n_trees=n_trees, max_depth=max_depth, remainder_score=f, min_samples=min_samples)
-    other_tree.fit(iris.data, iris.target, attributes)
-    a = other_tree.predict(iris.data[50])
-    b = other_tree.predict_majority(iris.data[50])
+
+def test_random_forests(data, attributes):
+    good = True
+
+    ns_trees = [j+2 for j in range(8,2)]
+    _max_depths = [i+1 for i in range(10,3)]
+    fs = ['gini', 'entropy']
+
+    total = len(ns_trees)*len(_max_depths)*len(fs)
+    i = 0
+    for n_trees in ns_trees:
+        for f in fs:
+            for max_depth in _max_depths:
+                same = compare_random_forests(data, attributes, max_depth, f=f, n_trees=n_trees)
+                print("Run {}/{}".format(i,total))
+                i += 1
+                if not same:
+                    print("------------ Diff! ----------")
+                    good = False
+
+    if good:
+        print("Equal!")
+
+
+def compare_random_forests(iris, n_trees=10, max_depth=100, f='gini', min_samples=None):
+    them = RandomForestClassifier(n_estimators=n_trees, max_depth=max_depth, criterion=f, min_samples_split=min_samples)
+    them.fit(iris.data, iris.target)
+
+    me = MyRandom(n_trees=n_trees, max_depth=max_depth, remainder_score=f, min_samples=min_samples)
+    me.fit(iris.data, iris.target, attributes)
+
+    return False
+
 
 def compare_decision_trees(iris, attributes, max_depth=100, f='gini', min_samples=1):
     clf = DecisionTreeClassifier(random_state=0, max_depth=max_depth, criterion=f, min_samples_split=min_samples)
