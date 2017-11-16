@@ -1,4 +1,3 @@
-from timeout import timeout
 from analysis import test_f_stars
 from data import split
 
@@ -13,29 +12,43 @@ def test_model(data, target, attributes, create_model, *grid_search_params):
     for p in grid_search_params:
         total *= len(p)
 
-    ints = {}
-    ints['total'] = total
-    ints['run'] = 0
-    ints['max_auc'] = 0
-    loop_and_test_params(ints, training_val_data, training_val_target, attributes, create_model,
+    experiment_data = {}
+    experiment_data['total'] = total
+    experiment_data['run'] = 0
+    experiment_data['max_auc'] = 0
+    experiment_data['auc_best_params'] = None
+    experiment_data['max_acc'] = 0
+    experiment_data['acc_best_params'] = None
+
+    loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model,
                          *grid_search_params)
 
-def loop_and_test_params(ints, training_val_data, training_val_target, attributes, create_model, *grid_search_params):
+    print("\n\n", experiment_data)
+
+
+def loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, *grid_search_params):
     if isinstance(grid_search_params[-1], list):
         i = 0
         while not isinstance(grid_search_params[i],list):
             i += 1
         for param in grid_search_params[i]:
-            loop_and_test_params(ints, training_val_data, training_val_target, attributes, create_model, *grid_search_params[0:i], param, *grid_search_params[i+1:])
+            loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, *grid_search_params[0:i], param, *grid_search_params[i+1:])
     else:
-        ints['run'] += 1
-        print("Run {}/{}".format(ints['run'], ints['total']))
+        experiment_data['run'] += 1
+        print("--- Run {}/{}".format(experiment_data['run'], experiment_data['total']))
 
-        auc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
+        auc, acc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
+        print("AUC: {}".format(auc))
 
-        if auc > ints['max_auc']:
-            ints['max_auc'] = auc
-            print("Max AUC: {} ".format(auc))
+        if auc > experiment_data['max_auc']:
+            experiment_data['max_auc'] = auc
+            experiment_data['auc_best_params'] = grid_search_params
+            print("New best AUC!")
+
+        if auc > experiment_data['max_acc']:
+            experiment_data['max_acc'] = auc
+            experiment_data['acc_best_params'] = grid_search_params
+            print("New best accuracy!")
 
 
 def run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params):
@@ -46,6 +59,6 @@ def run_one(training_val_data, training_val_target, create_model, attributes, *g
 
     val_preds = clf.predict_prob(val_data)
 
-    auc = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
+    auc, max_acc = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
 
-    return auc
+    return auc, max_acc
