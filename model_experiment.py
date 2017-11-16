@@ -30,14 +30,24 @@ def loop_and_test_params(ints, training_val_data, training_val_target, attribute
         ints['run'] += 1
         print("Run {}/{}".format(ints['run'], ints['total']))
 
-        training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
+        try:
+            auc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
+        except TimeoutError as err:
+            print(err)
 
-        clf = create_model(*grid_search_params)
-        clf.fit(training_data, training_target, attributes)
-
-        val_preds = clf.predict_prob(val_data)
-
-        auc = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
         if auc > ints['max_auc']:
             ints['max_auc'] = auc
             print("Max AUC: {} ".format(auc))
+
+
+def run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params):
+    training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
+
+    clf = create_model(*grid_search_params)
+    clf.fit(training_data, training_target, attributes)
+
+    val_preds = clf.predict_prob(val_data)
+
+    auc = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
+
+    return auc
