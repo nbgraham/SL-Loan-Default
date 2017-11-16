@@ -1,6 +1,7 @@
 from anytree import Node, RenderTree
 import numpy as np
 from scipy import stats
+import math
 
 from information_gain import inf_a
 from gini import gin_a
@@ -168,7 +169,9 @@ class DecisionTreeClassifier:
                     best_attr_i = attr_i
             else:
                 values = sorted(x[:, attr_i])
-                for split_point in values:
+                for i in range(0,len(values),math.ceil(len(values)/100)):
+                    split_point = values[i]
+
                     before_split_indexes = x[:, attr_i] <= split_point
                     after_split_indexes = x[:, attr_i] > split_point
 
