@@ -25,6 +25,7 @@ class DecisionTreeClassifier:
         self.x_shape = x[0].shape
         self.tree = self.grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth)
 
+    def render(self):
         for pre, fill, node in RenderTree(self.tree):
             print("%s%s" % (pre, node.name))
 
