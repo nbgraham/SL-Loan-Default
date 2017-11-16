@@ -163,13 +163,15 @@ class DecisionTreeClassifier:
                 for j in range(len(vals)):
                     examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
                     rem += len(examples_y) / len(y) * score(examples_y)
+                    if rem > min_rem:
+                        break
 
                 if rem < min_rem:
                     min_rem = rem
                     best_attr_i = attr_i
             else:
-                values = sorted(x[:, attr_i])
-                for i in range(0,len(values),math.ceil(len(values)/100)):
+                values = sorted(np.unique(x[:, attr_i]))
+                for i in range(0, len(values), math.ceil(len(values)/100)):
                     split_point = values[i]
 
                     before_split_indexes = x[:, attr_i] <= split_point
@@ -180,8 +182,18 @@ class DecisionTreeClassifier:
 
                     before_split_y = y[before_split_indexes]
                     after_split_y = y[after_split_indexes]
-                    rem = len(before_split_y) / len(y) * score(before_split_y) \
-                          + len(after_split_y) / len(y) * score(after_split_y)
+
+                    if len(before_split_y) < len(after_split_y):
+                        first = before_split_y
+                        second = after_split_y
+                    else:
+                        first = after_split_y
+                        second = before_split_y
+
+                    rem = len(first) / len(y) * score(first)
+                    if rem > min_rem:
+                        continue
+                    rem += len(second) / len(y) * score(second)
 
                     if rem < min_rem:
                         min_rem = rem
