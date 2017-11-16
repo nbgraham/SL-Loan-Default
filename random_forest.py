@@ -53,23 +53,29 @@ class RandomForestClassifier:
         return pred
 
     def predict_majority(self, x):
-        label_counts = {}
+        label_counts = []
+        for i in range(len(x)):
+            label_counts.append({})
 
         for tree in self.trees:
             pred = tree.predict(x)
 
-            if pred in label_counts:
-                label_counts[pred] += 1
-            else:
-                label_counts[pred] = 1
+            for i in range(len(pred)):
+                if pred[i] in label_counts[i]:
+                    label_counts[i][pred[i]] += 1
+                else:
+                    label_counts[i][pred[i]] = 1
 
-        max = 0
-        pred = None
-        for label, count in label_counts.items():
-            if count > max:
-                max = count
-                pred = label
+        winners = []
+        for ct in label_counts:
+            max = 0
+            pred = None
+            for label, count in ct.items():
+                if count > max:
+                    max = count
+                    pred = label
+            winners.append(pred)
 
-        return pred
+        return np.array(winners)
 
 

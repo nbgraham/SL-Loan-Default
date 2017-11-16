@@ -62,6 +62,8 @@ def compare_random_forests(iris, attributes, n_trees=10, max_depth=100, f='gini'
     me.fit(iris.data, iris.target, attributes)
 
     me_preds = me.predict_prob(iris.data)
+    p = me.predict_majority(iris.data)
+    p1 = me.predict(iris.data)
 
     res = compare_bss(iris.target, me_preds)
     print("BSS: ", res[0])
