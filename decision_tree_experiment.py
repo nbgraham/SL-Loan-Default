@@ -32,7 +32,7 @@ def main():
                 auc = test_f_stars(preds, target, f_stars, status_delay=25)
                 if auc > max_auc:
                     max_auc = auc
-                    print("Max aux: {} with min samples: {} f: {} max depth: {}".format(auc, min_sm, f, max_depth))
+                    print("Max AUC: {} with min samples: {} f: {} max depth: {}".format(auc, min_sm, f, max_depth))
 
 if __name__ == "__main__":
     main()
