@@ -1,6 +1,9 @@
 from sklearn.datasets import load_iris
 from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeClassifier
+import numpy as np
+
+from analysis import analyze
 from decision_tree import DecisionTreeClassifier as MyTree, Attribute
 
 
@@ -24,9 +27,15 @@ def compare(iris, max_depth=100, f='gini', min_samples=1):
 
     them_bss = 0
     my_bss = 0
+
+    me_preds = []
+    them_preds = []
     for i in range(len(iris.data)):
         me = myclf.predict_prob(iris.data[i])
         them = clf.predict_proba(iris.data[i].reshape(1, -1))
+
+        me_preds.append(me)
+        them_preds.append(me)
 
         actual = iris.target[i]
         my_prob = [prob for (pred, prob) in me if pred == actual]
@@ -38,6 +47,8 @@ def compare(iris, max_depth=100, f='gini', min_samples=1):
 
     them_bss /= len(iris.target)
     my_bss /= len(iris.target)
+
+    analyze(np.array(me_preds), iris.target, 0.5)
 
     print("Me: ", my_bss)
     print("Them: ", them_bss)
