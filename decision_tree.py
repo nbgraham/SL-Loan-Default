@@ -13,17 +13,26 @@ class Attribute:
 
 
 class DecisionTreeClassifier:
-    def __init__(self, max_depth=None, min_split_size=None, remainder_score='entropy'):
+    def __init__(self, max_depth=None, min_split_size=None, remainder_score='entropy', attr_allowed=None):
         self.tree = None
         self.max_depth = max_depth
         self.min_split_size = min_split_size
         self.remainder_score=remainder_score
         self.x_shape = None
+        self.attr_allowed = attr_allowed
 
     def fit(self,x,y, attributes):
         x = np.array(x)
         self.x_shape = x[0].shape
-        self.tree = self.grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth)
+
+        if self.attr_allowed is None:
+            attr_used = [False] * len(attributes)
+        else:
+            attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
+            attr_used = [True] * len(attributes)
+            attr_used[attr_to_use_indices] = False
+
+        self.tree = self.grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth, attr_used=attr_used)
 
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
