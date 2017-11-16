@@ -66,7 +66,7 @@ def analyze(pred_probs, true, f_star):
 
     for i in range(len(pred_probs)):
         obs = true[i]
-        pred_prob = pred_probs[i]
+        pred_prob = pred_probs[i][obs]
 
         pred_label = 1 if pred_prob >= f_star else 0
 

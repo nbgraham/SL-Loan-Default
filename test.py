@@ -21,9 +21,10 @@ def test_decision_tree(data, attributes):
     for min_sm in _min_samples:
         for f in fs:
             for max_depth in _max_depths:
-                same = compare_decision_trees(data, attributes, max_depth, f=f, min_samples=min_sm)
-                print("Run {}/{}".format(i,total))
                 i += 1
+                print("Run {}/{}".format(i, total))
+
+                same = compare_decision_trees(data, attributes, max_depth, f=f, min_samples=min_sm)
                 if not same:
                     print("------------ Diff! ----------")
                     good = False
@@ -68,52 +69,47 @@ def compare_random_forests(iris, n_trees=10, max_depth=100, f='gini', min_sample
 
 def compare_decision_trees(iris, attributes, max_depth=100, f='gini', min_samples=1):
     clf = DecisionTreeClassifier(random_state=0, max_depth=max_depth, criterion=f, min_samples_split=min_samples)
-
     clf.fit(iris.data, iris.target)
-    a = clf.predict_proba(iris.data[94].reshape(1, -1))
 
     myclf = MyTree(max_depth=max_depth, remainder_score=f, min_split_size=min_samples)
     myclf.fit(iris.data, iris.target, attributes)
 
-    them_bss = 0
-    my_bss = 0
+    me_preds = myclf.predict_prob(iris.data)
+    them_preds = clf.predict_proba(iris.data)
 
-    me_preds = []
-    them_preds = []
-    for i in range(len(iris.data)):
-        me = myclf.predict_prob(iris.data[i].reshape(1, -1))
-        them = clf.predict_proba(iris.data[i].reshape(1, -1))
+    # me_acc, me_pod, me_pofd = analyze(me_preds, iris.target, 0.5)
+    # them_acc, them_pod, them_pofd = analyze(them_preds, iris.target, 0.5)
+    #
+    # res = compare_bss(iris.target, me_preds, them_preds)
+    # my_bss = res[0]
+    # them_bss = res[1]
+    #
+    # my_bss = round(my_bss,5)
+    # me_acc = round(me_acc, 5)
+    # me_pod = round(me_pod, 5)
+    # me_pofd = round(me_pofd, 5)
+    #
+    # them_bss = round(them_bss, 5)
+    # them_acc = round(them_acc, 5)
+    # them_pod = round(them_pod, 5)
+    # them_pofd = round(them_pofd, 5)
+    #
+    # print("Me:   {} {} {} {}".format(my_bss, me_acc, me_pod, me_pofd))
+    # print("Them: {} {} {} {}".format(them_bss, them_acc, them_pod, them_pofd))
 
-        me_preds.append(me[0][1])
-        them_preds.append(them[0][1])
+    return np.all(np.equal(np.round(me_preds,5), np.round(them_preds,5)))
 
-        actual = iris.target[i]
-        my_prob = me[0][actual]
-        them_prob = them[0][actual]
 
-        my_bss += (1-my_prob)**2
-        them_bss += (1-them_prob)**2
+def compare_bss(target, *args):
+    result = [0]*len(args)
+    for i in range(len(target)):
+        actual = target[i]
 
-    them_bss /= len(iris.target)
-    my_bss /= len(iris.target)
+        for j in range(len(args)):
+            prob_of_actual = args[j][i][actual]
+            result[j] += (1 - prob_of_actual) ** 2 / len(target)
 
-    me_acc, me_pod, me_pofd = analyze(np.array(me_preds), iris.target, 0.5)
-    them_acc, them_pod, them_pofd = analyze(np.array(them_preds), iris.target, 0.5)
-
-    my_bss = round(my_bss,5)
-    me_acc = round(me_acc, 5)
-    me_pod = round(me_pod, 5)
-    me_pofd = round(me_pofd, 5)
-
-    them_bss = round(them_bss, 5)
-    them_acc = round(them_acc, 5)
-    them_pod = round(them_pod, 5)
-    them_pofd = round(them_pofd, 5)
-
-    print("Me:   {} {} {} {}".format(my_bss, me_acc, me_pod, me_pofd))
-    print("Them: {} {} {} {}".format(them_bss, them_acc, them_pod, them_pofd))
-
-    return my_bss == them_bss and me_acc == them_acc and me_pod == them_pod and me_pofd == them_pofd
+    return result
 
 
 def guess_attributes(data):
