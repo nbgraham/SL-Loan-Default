@@ -3,6 +3,7 @@ import numpy as np
 
 from decision_tree import DecisionTreeClassifier
 
+np.random.seed(1)
 
 class RandomForestClassifier:
     def __init__(self, n_trees=10, max_features=lambda x: math.floor(math.sqrt(x)), min_split_size=None, max_depth=None, remainder_score='gini'):

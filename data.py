@@ -4,6 +4,7 @@ import math
 
 from decision_tree import Attribute
 
+np.random.seed(1)
 
 def load_loan():
     with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
