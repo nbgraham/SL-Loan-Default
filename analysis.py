@@ -11,7 +11,7 @@ def test_f_stars(pred, true, f_stars, status_delay=100, filename='model'):
     max_f = None
     for f_star in f_stars:
         if (f_star * len(f_stars)) % status_delay == 0:
-            print(f_star)
+            print(f_star, end=', ')
         acc, pod, pofd = analyze(pred, true, f_star)
         if acc > max_acc:
             max_acc = acc
@@ -28,11 +28,11 @@ def test_f_stars(pred, true, f_stars, status_delay=100, filename='model'):
 
     auc = -1 * np.trapz(y=pods, x=pofds)
 
-    print("Max acc: {} at f of {}".format(max_acc, max_f))
+    print("\nMax acc: {} at f of {}".format(max_acc, max_f))
 
     # plot_roc(filename, pofds, pods)
 
-    return auc
+    return auc, max_acc
 
 
 def plot_roc(filename, pofds=None, pods=None):
