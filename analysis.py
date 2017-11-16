@@ -57,18 +57,18 @@ def plot_roc(filename, pofds=None, pods=None):
     plt.show()
 
 
-def analyze(pred, true, f_star):
-    total = len(pred)
+def analyze(pred_probs, true, f_star):
+    total = len(pred_probs)
     happened_predicted = 0
     happened_not_predicted = 0
     not_happened_predicted = 0
     not_happened_not_predicted = 0
 
-    for i in range(len(pred)):
+    for i in range(len(pred_probs)):
         obs = true[i]
-        pred = pred[i]
+        pred_prob = pred_probs[i]
 
-        pred_label = 1 if pred >= f_star else 0
+        pred_label = 1 if pred_prob >= f_star else 0
 
         if 1 == obs:
             if pred_label == obs:
