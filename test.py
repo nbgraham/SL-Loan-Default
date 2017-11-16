@@ -44,9 +44,10 @@ def test_random_forests(data, attributes):
     for n_trees in ns_trees:
         for f in fs:
             for max_depth in _max_depths:
-                same = compare_random_forests(data, attributes, max_depth, f=f, n_trees=n_trees)
-                print("Run {}/{}".format(i,total))
                 i += 1
+                print("Run {}/{}".format(i, total))
+
+                same = compare_random_forests(data, attributes, max_depth, f=f, n_trees=n_trees)
                 if not same:
                     print("------------ Diff! ----------")
                     good = False
@@ -80,20 +81,14 @@ def compare_decision_trees(iris, attributes, max_depth=100, f='gini', min_sample
     me_preds = []
     them_preds = []
     for i in range(len(iris.data)):
-        me = myclf.predict_prob(iris.data[i])
+        me = myclf.predict_prob(iris.data[i].reshape(1, -1))
         them = clf.predict_proba(iris.data[i].reshape(1, -1))
 
-        my_pred_happened = 0
-        for (label, pred) in me:
-            if label == 1:
-                my_pred_happened=pred
-        me_preds.append(my_pred_happened)
-
+        me_preds.append(me[0][1])
         them_preds.append(them[0][1])
 
         actual = iris.target[i]
-        my_prob = [prob for (pred, prob) in me if pred == actual]
-        my_prob = my_prob[0] if len(my_prob) == 1 else 0
+        my_prob = me[0][actual]
         them_prob = them[0][actual]
 
         my_bss += (1-my_prob)**2

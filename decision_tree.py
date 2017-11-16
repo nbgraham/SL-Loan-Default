@@ -31,7 +31,7 @@ class DecisionTreeClassifier:
             attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
             attr_used = [i not in attr_to_use_indices for i in range(len(attributes))]
 
-        self.tree = self.grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth, attr_used=attr_used)
+        self.tree = self.grow_decision_tree(x,y,attributes,y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
 
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
@@ -42,31 +42,30 @@ class DecisionTreeClassifier:
             raise UnboundLocalError("This object has no tree. This decision tree has not been fit, so it cannot predict.")
 
         x = np.array(x)
-        if x.shape != self.x_shape:
-            raise ValueError("Expected x with shape {} but got {}".format(self.x_shape, x.shape))
+        if x[0].shape != self.x_shape:
+            raise ValueError("Expected x with shape {} but got {}".format(self.x_shape, x[0].shape))
 
-        c = self.tree
-        while c.children:
-            for ci in c.children:
-                if ci.test(x):
-                    c = ci
-                    break
+        probs = []
 
-        return c.prob
+        for xi in x:
+            c = self.tree
+            while c.children:
+                for ci in c.children:
+                    if ci.test(xi):
+                        c = ci
+                        break
+            probs.append(c.prob)
+
+        return np.vstack(probs)
 
     def predict(self, x):
         probs = self.predict_prob(x)
 
-        pred = -1
-        max = 0
-        for (label,prob) in probs:
-            if prob > max:
-                max = prob
-                pred = label
+        pred = np.argmax(probs, axis=1)
 
         return pred
 
-    def grow_decision_tree(self, x, y, attributes, default, max_depth=None, label_prefix="", attr_used=None):
+    def grow_decision_tree(self, x, y, attributes, default, classes=2, max_depth=None, label_prefix="", attr_used=None):
             if attr_used is None:
                 attr_used = [False]*len(attributes)
 
@@ -98,7 +97,18 @@ class DecisionTreeClassifier:
                     subtree.test = cat_test(best_attribute_i, val)
 
                     y_vals, counts = np.unique(examples_y, return_counts=True)
-                    subtree.prob = [(y_vals[i], counts[i] / len(examples_y)) for i in range(len(y_vals))]
+
+                    i_counts = 0
+                    true_counts = []
+                    for i in range(classes):
+                        if i in y_vals:
+                            true_counts.append(counts[i_counts])
+                            i_counts += 1
+                        else:
+                            true_counts.append(0)
+
+                    subtree.prob = np.array([true_counts[i] / len(examples_y)
+                                             for i in range(classes)]).reshape(1,-1)
                     subtree.parent = tree
             else:
                 for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
@@ -110,7 +120,18 @@ class DecisionTreeClassifier:
                     subtree.test = reg_test(f[1], best_attribute_i, best_split_point)
 
                     y_vals, counts = np.unique(examples_y, return_counts=True)
-                    subtree.prob = [(y_vals[i], counts[i]/len(examples_y)) for i in range(len(y_vals))]
+
+                    i_counts = 0
+                    true_counts = []
+                    for i in range(classes):
+                        if i in y_vals:
+                            true_counts.append(counts[i_counts])
+                            i_counts += 1
+                        else:
+                            true_counts.append(0)
+
+                    subtree.prob = np.array([true_counts[i] / len(examples_y)
+                                             for i in range(classes)]).reshape(1,-1)
                     subtree.parent = tree
 
             return tree
