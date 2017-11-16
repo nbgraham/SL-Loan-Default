@@ -1,9 +1,9 @@
+from timeout import timeout
 from analysis import test_f_stars
 from data import split
 
 n_fs = 100
 f_stars = [i/n_fs for i in range(n_fs)]
-
 
 def test_model(data, target, attributes, create_model, *grid_search_params):
     training_val_data, training_val_target, test_data, test_target = split(data, target)
@@ -40,6 +40,7 @@ def loop_and_test_params(ints, training_val_data, training_val_target, attribute
             print("Max AUC: {} ".format(auc))
 
 
+@timeout(60)
 def run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params):
     training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
 
