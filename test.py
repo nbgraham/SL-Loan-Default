@@ -4,8 +4,8 @@ from sklearn.tree import DecisionTreeClassifier
 from decision_tree import DecisionTreeClassifier as MyTree, Attribute
 
 
-def compare(iris, max_depth=100):
-    clf = DecisionTreeClassifier(random_state=0, max_depth=max_depth)
+def compare(iris, max_depth=100, f='gini'):
+    clf = DecisionTreeClassifier(random_state=0, max_depth=max_depth, criterion=f)
 
     clf.fit(iris.data, iris.target)
     a = clf.predict_proba(iris.data[94].reshape(1, -1))
@@ -19,7 +19,7 @@ def compare(iris, max_depth=100):
         Attribute("Petal Width", False)
     ]
 
-    myclf = MyTree(max_depth=max_depth)
+    myclf = MyTree(max_depth=max_depth, remainder_score=f)
     myclf.fit(iris.data, iris.target, attributes)
 
     them_bss = 0
@@ -49,12 +49,13 @@ if __name__ == "__main__":
     iris_ = load_iris()
 
     good = True
-    for i in range(10):
-        me, them = compare(iris_,i+1)
+    for f in ['gini', 'entropy']:
+        for i in range(10):
+            me, them = compare(iris_,i+1, f=f)
 
-        if me != them:
-            print("Diff!")
-            good = False
+            if me != them:
+                print("Diff!")
+                good = False
 
     if good:
         print("Equal!")
