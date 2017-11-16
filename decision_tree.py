@@ -50,11 +50,22 @@ class DecisionTreeClassifier:
 
         for xi in x:
             c = self.tree
+            depth = 0
             while c.children:
+                if depth > 100000 or (self.max_depth is not None and depth > self.max_depth):
+                    raise RecursionError("Looped in tree {} times".format(depth))
+                depth += 1
+
+                match = False
                 for ci in c.children:
                     if ci.test(xi):
                         c = ci
+                        match=True
                         break
+
+                if not match:
+                    break
+
             probs.append(c.prob)
 
         return np.vstack(probs)
