@@ -5,6 +5,7 @@ from data import split
 n_fs = 100
 f_stars = [i/n_fs for i in range(n_fs)]
 
+
 def test_model(data, target, attributes, create_model, *grid_search_params):
     training_val_data, training_val_target, test_data, test_target = split(data, target)
 
@@ -30,17 +31,13 @@ def loop_and_test_params(ints, training_val_data, training_val_target, attribute
         ints['run'] += 1
         print("Run {}/{}".format(ints['run'], ints['total']))
 
-        try:
-            auc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
-        except TimeoutError as err:
-            print(err)
+        auc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
 
         if auc > ints['max_auc']:
             ints['max_auc'] = auc
             print("Max AUC: {} ".format(auc))
 
 
-@timeout(60)
 def run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params):
     training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
 
