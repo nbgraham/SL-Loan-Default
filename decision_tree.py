@@ -66,14 +66,11 @@ class DecisionTreeClassifier:
 
         return pred
 
-    def grow_decision_tree(self, x, y, attributes, default, classes=2, max_depth=None, label_prefix="", attr_used=None):
-            if attr_used is None:
-                attr_used = [False]*len(attributes)
-
+    def grow_decision_tree(self, x, y, attributes, default, attr_used, classes=2, max_depth=None, label_prefix=""):
             if (len(x) == 0) or \
-                (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
-                (max_depth is not None and max_depth < 1) or \
-                (self.min_split_size is not None and len(x) < self.min_split_size):
+                    (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
+                    (max_depth is not None and max_depth < 1) or \
+                    (self.min_split_size is not None and len(x) < self.min_split_size):
                 return Node(label_prefix + str(default))
 
             if len(np.unique(y)) == 1:
