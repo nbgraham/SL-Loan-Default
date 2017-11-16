@@ -34,8 +34,6 @@ def compare_decision_trees(iris, attributes, max_depth=100, f='gini', min_sample
     clf.fit(iris.data, iris.target)
     a = clf.predict_proba(iris.data[94].reshape(1, -1))
 
-    print(a)
-
     myclf = MyTree(max_depth=max_depth, remainder_score=f, min_split_size=min_samples)
     myclf.fit(iris.data, iris.target, attributes)
 
@@ -54,6 +52,8 @@ def compare_decision_trees(iris, attributes, max_depth=100, f='gini', min_sample
                 my_pred_happened=pred
         me_preds.append(my_pred_happened)
 
+        them_preds.append(them[0][1])
+
         actual = iris.target[i]
         my_prob = [prob for (pred, prob) in me if pred == actual]
         my_prob = my_prob[0] if len(my_prob) == 1 else 0
@@ -65,12 +65,23 @@ def compare_decision_trees(iris, attributes, max_depth=100, f='gini', min_sample
     them_bss /= len(iris.target)
     my_bss /= len(iris.target)
 
-    analyze(np.array(me_preds), iris.target, 0.5)
+    me_acc, me_pod, me_pofd = analyze(np.array(me_preds), iris.target, 0.5)
+    them_acc, them_pod, them_pofd = analyze(np.array(them_preds), iris.target, 0.5)
 
-    print("Me: ", my_bss)
-    print("Them: ", them_bss)
+    my_bss = round(my_bss,5)
+    me_acc = round(me_acc, 5)
+    me_pod = round(me_pod, 5)
+    me_pofd = round(me_pofd, 5)
 
-    return my_bss, them_bss
+    them_bss = round(them_bss, 5)
+    them_acc = round(them_acc, 5)
+    them_pod = round(them_pod, 5)
+    them_pofd = round(them_pofd, 5)
+
+    print("Me:   {} {} {} {}".format(my_bss, me_acc, me_pod, me_pofd))
+    print("Them: {} {} {} {}".format(them_bss, them_acc, them_pod, them_pofd))
+
+    return my_bss == them_bss and me_acc == them_acc and me_pod == them_pod and me_pofd == them_pofd
 
 
 def guess_attributes(data):
