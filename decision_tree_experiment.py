@@ -1,6 +1,6 @@
 import math
 
-from data import load_loan
+from data import load_loan, split
 from decision_tree import DecisionTreeClassifier
 from analysis import test_f_stars
 
@@ -10,6 +10,8 @@ f_stars = [i/n_fs for i in range(n_fs)]
 
 def main():
     data, target, attributes = load_loan()
+
+    training_val_data, training_val_target, test_data, test_target = split(data, target)
 
     lower_split_bound = math.ceil(len(data)/1000)
     _min_samples = [j for j in range(lower_split_bound,2*lower_split_bound,5)]
@@ -25,12 +27,14 @@ def main():
                 i += 1
                 print("Run {}/{}".format(i, total))
 
+                training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
+
                 clf = DecisionTreeClassifier(max_depth=max_depth, remainder_score=f, min_split_size=min_sm)
-                clf.fit(data, target, attributes)
+                clf.fit(training_data, training_target, attributes)
 
-                preds = clf.predict_prob(data)
+                val_preds = clf.predict_prob(val_data)
 
-                auc = test_f_stars(preds, target, f_stars, status_delay=25)
+                auc = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
                 if auc > max_auc:
                     max_auc = auc
                     print("Max AUC: {} with min samples: {} f: {} max depth: {}".format(auc, min_sm, f, max_depth))

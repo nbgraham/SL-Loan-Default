@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+import math
 
 from decision_tree import Attribute
 
@@ -46,6 +47,22 @@ def load_loan():
     ]
 
     return data, target, attributes
+
+
+def split(data, target, training=0.8):
+    indices = np.arange(len(data))
+    np.random.shuffle(indices)
+
+    split = math.ceil(training*len(data))
+
+    training_data = data[indices[:split]]
+    training_target = target[indices[:split]]
+
+    test_data = data[indices[split:]]
+    test_target = target[indices[split:]]
+
+    return training_data, training_target, test_data, test_target
+
 
 if __name__ == "__main__":
     a,b,c = load_loan()

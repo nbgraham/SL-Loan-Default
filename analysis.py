@@ -30,13 +30,9 @@ def test_f_stars(pred, true, f_stars, status_delay=100, filename='model'):
 
     print("Max acc: {} at f of {}".format(max_acc, max_f))
 
-    return auc
-
-    # print("AUC: {}".format(auc))
-    #
-
-    #
     # plot_roc(filename, pofds, pods)
+
+    return auc
 
 
 def plot_roc(filename, pofds=None, pods=None):
