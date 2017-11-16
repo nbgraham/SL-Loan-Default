@@ -5,6 +5,7 @@ import numpy as np
 
 from analysis import analyze
 from decision_tree import DecisionTreeClassifier as MyTree, Attribute
+from random_forest import RandomForestClassifier
 
 
 def compare(iris, max_depth=100, f='gini', min_samples=1):
@@ -24,6 +25,11 @@ def compare(iris, max_depth=100, f='gini', min_samples=1):
 
     myclf = MyTree(max_depth=max_depth, remainder_score=f, min_split_size=min_samples)
     myclf.fit(iris.data, iris.target, attributes)
+
+    other_tree = RandomForestClassifier(max_depth=1)
+    other_tree.fit(iris.data, iris.target, attributes)
+    a = other_tree.predict(iris.data[50])
+    b = other_tree.predict_majority(iris.data[50])
 
     them_bss = 0
     my_bss = 0

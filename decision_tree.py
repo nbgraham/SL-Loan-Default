@@ -29,8 +29,7 @@ class DecisionTreeClassifier:
             attr_used = [False] * len(attributes)
         else:
             attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
-            attr_used = [True] * len(attributes)
-            attr_used[attr_to_use_indices] = False
+            attr_used = [i not in attr_to_use_indices for i in range(len(attributes))]
 
         self.tree = self.grow_decision_tree(x,y,attributes,y[0], max_depth=self.max_depth, attr_used=attr_used)
 
