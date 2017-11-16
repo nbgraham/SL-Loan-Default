@@ -4,7 +4,8 @@ from data import load_loan
 from decision_tree import DecisionTreeClassifier
 from analysis import test_f_stars
 
-f_stars = [i/100 for i in range(100)]
+n_fs = 100
+f_stars = [i/n_fs for i in range(n_fs)]
 
 
 def main():
