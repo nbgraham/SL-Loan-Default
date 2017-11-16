@@ -10,13 +10,21 @@ from random_forest import RandomForestClassifier
 
 def test_decision_tree(data, attributes):
     good = True
-    for j in range(8):
-        for f in ['gini', 'entropy']:
-            for i in range(10):
-                me, them = compare_decision_trees(data, attributes, i + 1, f=f, min_samples=j + 2)
 
-                if me != them:
-                    print("Diff!")
+    _min_samples = [j+2 for j in range(8)]
+    _max_depths = [i+1 for i in range(10)]
+    fs = ['gini', 'entropy']
+
+    total = len(_min_samples)*len(_max_depths)*len(fs)
+    i = 0
+    for min_sm in _min_samples:
+        for f in fs:
+            for max_depth in _max_depths:
+                same = compare_decision_trees(data, attributes, max_depth, f=f, min_samples=min_sm)
+                print("Run {}/{}".format(i,total))
+                i += 1
+                if not same:
+                    print("------------ Diff! ----------")
                     good = False
 
     if good:
