@@ -142,4 +142,4 @@ if __name__ == "__main__":
     #     Attribute("Petal Width", False)
     # ]
 
-    test_random_forests(iris_, attributes)
+    test_decision_tree(iris_, attributes)
