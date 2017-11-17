@@ -20,11 +20,11 @@ def test_f_stars(pred, true, f_stars, status_delay=100, filename='model'):
         pods.append(pod)
         pofds.append(pofd)
 
-    with open(filename + '_pods.json','w') as f:
-        json.dump(pods, f)
-
-    with open(filename + '_pofds.json','w') as f:
-        json.dump(pofds, f)
+    # with open(filename + '_pods.json','w') as f:
+    #     json.dump(pods, f)
+    #
+    # with open(filename + '_pofds.json','w') as f:
+    #     json.dump(pofds, f)
 
     auc = -1 * np.trapz(y=pods, x=pofds)
 
