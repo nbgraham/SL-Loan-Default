@@ -43,7 +43,7 @@ def test_params(data, target, attributes, remainder_scores, max_depths, min_spli
         'total': total,
         'i': 0,
         'bar': progressbar.ProgressBar(max_value=total, widgets=[
-            'Testing params', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
+            'Testing params ', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
             progressbar.Bar(),
             progressbar.Timer(), ' ', progressbar.ETA()
         ])
