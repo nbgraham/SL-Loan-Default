@@ -38,7 +38,10 @@ class DecisionTreeClassifier:
         for pre, fill, node in RenderTree(self.tree):
             print("%s%s" % (pre, node.name))
 
-    def predict_prob(self,x):
+    def predict_prob(self, x):
+        self._predict_prob(x, self.max_depth, self.min_split_size)
+
+    def _predict_prob(self, x, max_depth, min_split_size):
         if self.tree is None:
             raise UnboundLocalError("This object has no tree. This decision tree has not been fit, so it cannot predict.")
 
@@ -52,6 +55,8 @@ class DecisionTreeClassifier:
             c = self.tree
             depth = 0
             while c.children:
+                if depth == max_depth or c.size < min_split_size:
+                    break
                 if depth > 100000 or (self.max_depth is not None and depth > self.max_depth):
                     raise RecursionError("Looped in tree {} times".format(depth))
                 depth += 1
@@ -72,10 +77,14 @@ class DecisionTreeClassifier:
 
     def predict(self, x):
         probs = self.predict_prob(x)
-
         pred = np.argmax(probs, axis=1)
-
         return pred
+
+    def _predict(self, x, max_depth, min_split_size):
+        probs = self._predict_prob(x, max_depth, min_split_size)
+        pred = np.argmax(probs, axis=1)
+        return pred
+
 
     def grow_decision_tree(self, x, y, attributes, default, attr_used, classes=2, max_depth=None, label_prefix=""):
             if (len(x) == 0) or \
@@ -92,6 +101,7 @@ class DecisionTreeClassifier:
             attr_used = attr_used[:]
             attr_used[best_attribute_i] = True
             tree = Node(label_prefix + best_attribute.name)
+            tree.size = len(y)
 
             next_depth = max_depth - 1 if max_depth is not None else None
             if best_attribute.categorical:
@@ -118,6 +128,7 @@ class DecisionTreeClassifier:
 
                     subtree.prob = np.array([true_counts[i] / len(examples_y)
                                              for i in range(classes)]).reshape(1,-1)
+                    subtree.size = len(examples_y)
                     subtree.parent = tree
             else:
                 for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
@@ -141,6 +152,7 @@ class DecisionTreeClassifier:
 
                     subtree.prob = np.array([true_counts[i] / len(examples_y)
                                              for i in range(classes)]).reshape(1,-1)
+                    subtree.size = len(examples_y)
                     subtree.parent = tree
 
             return tree
