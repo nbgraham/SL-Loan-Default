@@ -22,6 +22,7 @@ class DecisionTreeClassifier:
         self.remainder_score=remainder_score
         self.x_shape = None
         self.attr_allowed = attr_allowed
+        self.threads = None
 
     def fit(self,x,y, attributes):
         x = np.array(x)
@@ -33,7 +34,11 @@ class DecisionTreeClassifier:
             attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
             attr_used = [i not in attr_to_use_indices for i in range(len(attributes))]
 
+        self.threads = []
         self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
+
+        for thread in self.threads:
+            thread.join()
 
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
@@ -120,7 +125,6 @@ class DecisionTreeClassifier:
         attr_used[best_attribute_i] = True
         node.name = label_prefix + best_attribute.name
 
-        threads = []
         next_depth = max_depth - 1 if max_depth is not None else None
         if best_attribute.categorical:
             vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
@@ -134,7 +138,7 @@ class DecisionTreeClassifier:
                 subtree.test = cat_test(best_attribute_i, val)
 
                 t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, "=" + str(val) + " || ", ))
-                threads.append(t)
+                self.threads.append(t)
                 t.start()
         else:
             for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
@@ -148,7 +152,7 @@ class DecisionTreeClassifier:
 
                 t = threading.Thread(target=self.grow_decision_tree, args=(
                     subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, f[0] + str(best_split_point) + " || ",))
-                threads.append(t)
+                self.threads.append(t)
                 t.start()
 
         return node
