@@ -27,4 +27,4 @@ def plot(metric):
 
 if __name__ == "__main__":
     plot('auc')
-    # plot('acc')
+    plot('acc')
