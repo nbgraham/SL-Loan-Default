@@ -3,14 +3,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def test_f_stars(pred, true, f_stars, status_delay=100, filename='model'):
+def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename='model'):
     pods = []
     pofds = []
 
     max_acc = 0
     max_f = None
     for f_star in f_stars:
-        if (f_star * len(f_stars)) % status_delay == 0:
+        if verbose and (f_star * len(f_stars)) % status_delay == 0:
             print(f_star, end=', ')
         acc, pod, pofd = analyze(pred, true, f_star)
         if acc > max_acc:
@@ -28,7 +28,8 @@ def test_f_stars(pred, true, f_stars, status_delay=100, filename='model'):
 
     auc = -1 * np.trapz(y=pods, x=pofds)
 
-    print("\nMax acc: {} at f of {}".format(max_acc, max_f))
+    if verbose:
+        print("\nMax acc: {} at f of {}".format(max_acc, max_f))
 
     # plot_roc(filename, pofds, pods)
 
