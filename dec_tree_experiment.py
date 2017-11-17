@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 from decision_tree import DecisionTreeClassifier
 from data import load_loan
@@ -18,6 +19,12 @@ def test_dec_tree(data, target, attributes):
     fs = ['gini', 'entropy']
 
     experiment_data = test_model(data, target, attributes, create_decision_tree, fs, _max_depths, _min_samples)
+
+    with open('auc.npy', 'wb') as auc:
+        np.save(auc, experiment_data['auc_grid'])
+
+    with open('acc.npy', 'wb') as acc:
+        np.save(acc, experiment_data['acc_grid'])
 
 
 def create_decision_tree(f, max_depth, min_sm):
