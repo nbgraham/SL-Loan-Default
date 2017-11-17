@@ -26,6 +26,7 @@ class DecisionTreeClassifier:
         self.threads = None
         self.done_thread_count = 0
         self.progress_bar = None
+        self.show_progress = show_progress
 
     def fit(self,x,y, attributes):
         x = np.array(x)
@@ -39,12 +40,15 @@ class DecisionTreeClassifier:
 
         self.threads = []
         self.done_thread_count = 0
-        total_thread_estimate = 2**(self.max_depth) if self.max_depth - len(attributes) < -10 else 2**math.ceil(((len(attributes)+9*self.max_depth)/18))
-        self.progress_bar = progressbar.ProgressBar(max_value=total_thread_estimate, widgets=[
-            'Building Tree', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
-            progressbar.Bar(),
-            progressbar.Timer(), ' ', progressbar.ETA()
-        ])
+
+        if self.show_progress:
+            total_thread_estimate = 2**(self.max_depth) if self.max_depth - len(attributes) < -10 else 2**math.ceil(((len(attributes)+9*self.max_depth)/18))
+            self.progress_bar = progressbar.ProgressBar(max_value=total_thread_estimate, widgets=[
+                'Building Tree ', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
+                progressbar.Bar(), ' ',
+                progressbar.Timer(), ' ', progressbar.ETA()
+            ])
+            self.progress_bar.update(0)
 
         self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
 
@@ -72,7 +76,7 @@ class DecisionTreeClassifier:
             c = self.tree
             depth = 0
             while c.children:
-                if depth == max_depth or c.size < min_split_size:
+                if (max_depth is not None and depth == max_depth) or (min_split_size is not None and c.size < min_split_size):
                     break
                 if depth > 100000 or (self.max_depth is not None and depth > self.max_depth):
                     raise RecursionError("Looped in tree {} times".format(depth))
@@ -168,7 +172,8 @@ class DecisionTreeClassifier:
                 t.start()
 
         self.done_thread_count += 1
-        self.progress_bar.update(self.done_thread_count)
+        if self.show_progress:
+            self.progress_bar.update(self.done_thread_count)
         return node
 
     def get_score_function(self):
