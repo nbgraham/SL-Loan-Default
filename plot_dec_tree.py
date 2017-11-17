@@ -8,20 +8,25 @@ def plot(metric):
     gini = a [0]
     entropy = a [1]
 
+    min_split_sizes = [j for j in range(30, 100, 8)]
+    max_depths = [i for i in range(3, 20)]
+
     plt.imshow(gini)
     plt.colorbar()
     plt.title("Gini " + metric)
     plt.ylabel("Max depth")
-    plt.yticks(range(43), range(3,46))
+    plt.yticks(range(len(max_depths)), max_depths)
     plt.xlabel("Min split size")
-    plt.xticks(range(6), range(30, 60, 5))
+    plt.xticks(range(len(min_split_sizes)), min_split_sizes)
     plt.show()
 
     plt.imshow(entropy)
     plt.colorbar()
     plt.title("Entropy " + metric)
     plt.ylabel("Max depth")
+    plt.yticks(range(len(max_depths)), max_depths)
     plt.xlabel("Min split size")
+    plt.xticks(range(len(min_split_sizes)), min_split_sizes)
     plt.show()
 
 
