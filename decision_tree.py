@@ -1,3 +1,4 @@
+import threading
 from anytree import Node, RenderTree
 import numpy as np
 from scipy import stats
@@ -32,7 +33,7 @@ class DecisionTreeClassifier:
             attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
             attr_used = [i not in attr_to_use_indices for i in range(len(attributes))]
 
-        self.tree = self.grow_decision_tree(x,y,attributes,y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
+        self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
 
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
@@ -85,77 +86,72 @@ class DecisionTreeClassifier:
         pred = np.argmax(probs, axis=1)
         return pred
 
+    def grow_decision_tree(self, node, x, y, attributes, default, attr_used, classes=2, max_depth=None, label_prefix=""):
+        node.size = len(y)
 
-    def grow_decision_tree(self, x, y, attributes, default, attr_used, classes=2, max_depth=None, label_prefix=""):
-            if (len(x) == 0) or \
-                    (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
-                    (max_depth is not None and max_depth < 1) or \
-                    (self.min_split_size is not None and len(x) < self.min_split_size):
-                return Node(label_prefix + str(default))
-
-            if len(np.unique(y)) == 1:
-                return Node(label_prefix + str(y[0]))
-
-            best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_used, x, y)
-            best_attribute = attributes[best_attribute_i]
-            attr_used = attr_used[:]
-            attr_used[best_attribute_i] = True
-            tree = Node(label_prefix + best_attribute.name)
-            tree.size = len(y)
-
-            next_depth = max_depth - 1 if max_depth is not None else None
-            if best_attribute.categorical:
-                vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
-                for j in range(len(vals)):
-                    val = vals[j]
-                    examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] == j])
-                    examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
-
-                    label = stats.mode(examples_y).mode[0]
-                    subtree = self.grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, label_prefix="=" + str(val) + ". ", attr_used=attr_used)
-                    subtree.test = cat_test(best_attribute_i, val)
-
-                    y_vals, counts = np.unique(examples_y, return_counts=True)
-
-                    i_counts = 0
-                    true_counts = []
-                    for i in range(classes):
-                        if i in y_vals:
-                            true_counts.append(counts[i_counts])
-                            i_counts += 1
-                        else:
-                            true_counts.append(0)
-
-                    subtree.prob = np.array([true_counts[i] / len(examples_y)
-                                             for i in range(classes)]).reshape(1,-1)
-                    subtree.size = len(examples_y)
-                    subtree.parent = tree
+        y_vals, counts = np.unique(y, return_counts=True)
+        i_counts = 0
+        true_counts = []
+        for i in range(classes):
+            if i in y_vals:
+                true_counts.append(counts[i_counts])
+                i_counts += 1
             else:
-                for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
-                    examples_x = np.vstack([x[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
-                    examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+                true_counts.append(0)
 
-                    label = stats.mode(examples_y).mode[0]
-                    subtree = self.grow_decision_tree(examples_x, examples_y, attributes, label, max_depth=next_depth, label_prefix=f[0] + str(best_split_point) + ". ", attr_used=attr_used)
-                    subtree.test = reg_test(f[1], best_attribute_i, best_split_point)
+        node.prob = np.array([true_counts[i] / len(y)
+                              for i in range(classes)]).reshape(1, -1)
 
-                    y_vals, counts = np.unique(examples_y, return_counts=True)
 
-                    i_counts = 0
-                    true_counts = []
-                    for i in range(classes):
-                        if i in y_vals:
-                            true_counts.append(counts[i_counts])
-                            i_counts += 1
-                        else:
-                            true_counts.append(0)
+        if (len(x) == 0) or \
+                (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
+                (max_depth is not None and max_depth < 1) or \
+                (self.min_split_size is not None and len(x) < self.min_split_size):
+            node.name = label_prefix + str(default)
+            return node
 
-                    subtree.prob = np.array([true_counts[i] / len(examples_y)
-                                             for i in range(classes)]).reshape(1,-1)
-                    subtree.size = len(examples_y)
-                    subtree.parent = tree
+        if len(np.unique(y)) == 1:
+            node.name = label_prefix + str(y[0])
+            return node
 
-            return tree
+        best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_used, x, y)
+        best_attribute = attributes[best_attribute_i]
+        attr_used = attr_used[:]
+        attr_used[best_attribute_i] = True
+        node.name = label_prefix + best_attribute.name
+
+        threads = []
+        next_depth = max_depth - 1 if max_depth is not None else None
+        if best_attribute.categorical:
+            vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
+            for j in range(len(vals)):
+                val = vals[j]
+                examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] == j])
+                examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
+
+                label = stats.mode(examples_y).mode[0]
+                subtree = Node("")
+                subtree.test = cat_test(best_attribute_i, val)
+
+                t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, "=" + str(val) + " || ", ))
+                threads.append(t)
+                t.start()
+        else:
+            for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
+                examples_x = np.vstack([x[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+                examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+
+                label = stats.mode(examples_y).mode[0]
+
+                subtree = Node("")
+                subtree.test = reg_test(f[1], best_attribute_i, best_split_point)
+
+                t = threading.Thread(target=self.grow_decision_tree, args=(
+                    subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, f[0] + str(best_split_point) + " || ",))
+                threads.append(t)
+                t.start()
+
+        return node
 
     def get_score_function(self):
         if self.remainder_score == 'entropy':
