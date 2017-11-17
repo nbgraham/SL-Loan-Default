@@ -39,33 +39,50 @@ def test_params(data, target, attributes, remainder_scores, max_depths, min_spli
     training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
 
     threads = []
-    total = len(remainder_scores) * len(max_depths) * len(min_split_sizes)
-    i = 0
+    progress = {
+        'total': len(remainder_scores) * len(max_depths) * len(min_split_sizes),
+        'i': 0
+    }
+
     ## Training data is the same for all trees!!! Loses some exploration/randomness
     for remainder_score_i in range(len(remainder_scores)):
         remainder_score = remainder_scores[remainder_score_i]
-        clf = DecisionTreeClassifier(remainder_score=remainder_score, max_depth=max_max_depths, min_split_size=min_min_sizes)
-        clf.fit(training_data, training_target, attributes)
 
-        for max_depth_i in range(len(max_depths)):
-            for min_split_size_i in range(len(min_split_sizes)):
-                max_depth = max_depths[max_depth_i]
-                min_split_size = min_split_sizes[min_split_size_i]
-
-                i += 1
-                print("Run {}/{}".format(i, total))
-
-                if len(threads) >= 32:
-                    threads[0].join()
-                    threads = threads[1:]
-                t = threading.Thread(target=predict_one, args = (clf, val_data, val_target, max_depth, min_split_size, auc_grid, acc_grid, remainder_score_i, max_depth_i, min_split_size_i))
-                threads.append(t)
-                t.start()
+        t = threading.Thread(target=test_rem_score, args=(progress, remainder_score, max_max_depths, min_min_sizes, training_data, training_target, val_data, val_target, attributes, remainder_score_i, max_depths, min_split_sizes, auc_grid, acc_grid))
+        threads.append(t)
+        t.start()
 
     for thread in threads:
         thread.join()
 
     return auc_grid, acc_grid
+
+
+def test_rem_score(progress, remainder_score, max_max_depths, min_min_sizes, training_data, training_target, val_data, val_target, attributes, remainder_score_i, max_depths, min_split_sizes, auc_grid, acc_grid):
+    clf = DecisionTreeClassifier(remainder_score=remainder_score, max_depth=max_max_depths,
+                                 min_split_size=min_min_sizes)
+    clf.fit(training_data, training_target, attributes)
+
+    threads = []
+    for max_depth_i in range(len(max_depths)):
+        for min_split_size_i in range(len(min_split_sizes)):
+            max_depth = max_depths[max_depth_i]
+            min_split_size = min_split_sizes[min_split_size_i]
+
+            progress['i'] += 1
+            print("Run {}/{}".format(progress['i'], progress['total']))
+
+            if len(threads) >= 16:
+                threads[0].join()
+                threads = threads[1:]
+            t = threading.Thread(target=predict_one, args=(
+            clf, val_data, val_target, max_depth, min_split_size, auc_grid, acc_grid, remainder_score_i, max_depth_i,
+            min_split_size_i))
+            threads.append(t)
+            t.start()
+
+    for thread in threads:
+        thread.join()
 
 
 def predict_one(clf, val_data, val_target, max_depth, min_split_size, auc_grid, acc_grid, remainder_score_i, max_depth_i, min_split_size_i):
