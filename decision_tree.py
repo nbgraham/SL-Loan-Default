@@ -23,6 +23,7 @@ class DecisionTreeClassifier:
         self.x_shape = None
         self.attr_allowed = attr_allowed
         self.threads = None
+        self.done_thread_count = 0
 
     def fit(self,x,y, attributes):
         x = np.array(x)
@@ -35,10 +36,27 @@ class DecisionTreeClassifier:
             attr_used = [i not in attr_to_use_indices for i in range(len(attributes))]
 
         self.threads = []
+        self.done_thread_count = 0
         self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
+
+        print('Building tree')
+
+        total_threads_est = 2**((len(attributes) + self.max_depth)/4-2)
+
+        began = False
+        prev = threading.active_count()
+        while not began or prev > 2:
+            cur = threading.active_count()
+            if cur != prev:
+                done_perc = round(min(0.99,  self.done_thread_count/total_threads_est), 4)*100
+                print("Active threads: ", cur, " Started threads: ", len(self.threads), "Done %: ", done_perc)
+                prev = cur
+            if not began and cur > 2:
+                began = True
 
         for thread in self.threads:
             thread.join()
+            print('Thread joined')
 
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
@@ -107,7 +125,6 @@ class DecisionTreeClassifier:
         node.prob = np.array([true_counts[i] / len(y)
                               for i in range(classes)]).reshape(1, -1)
 
-
         if (len(x) == 0) or \
                 (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
                 (max_depth is not None and max_depth < 1) or \
@@ -155,6 +172,7 @@ class DecisionTreeClassifier:
                 self.threads.append(t)
                 t.start()
 
+        self.done_thread_count += 1
         return node
 
     def get_score_function(self):
