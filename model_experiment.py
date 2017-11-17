@@ -51,7 +51,7 @@ def loop_and_test_params(experiment_data, training_val_data, training_val_target
         auc, acc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
 
         experiment_data['auc_grid'][tuple(indices)] = auc
-        experiment_data['auc_grid'][tuple(indices)] = acc
+        experiment_data['acc_grid'][tuple(indices)] = acc
         print("AUC: {}".format(auc))
 
         if auc > experiment_data['max_auc']:
