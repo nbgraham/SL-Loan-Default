@@ -28,7 +28,7 @@ def test_model(data, target, attributes, create_model, *grid_search_params):
     experiment_data['auc_grid'] = auc_grid
     experiment_data['acc_grid'] = acc_grid
 
-    loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, [],
+    loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, [0]*len(grid_search_params),
                          *grid_search_params)
 
     return experiment_data
@@ -42,7 +42,7 @@ def loop_and_test_params(experiment_data, training_val_data, training_val_target
         for param_i in range(len(grid_search_params[i])):
             param = grid_search_params[i][param_i]
             new_indices = indices[:]
-            new_indices.append(param_i)
+            new_indices[i] = param_i
             loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, new_indices, *grid_search_params[0:i], param, *grid_search_params[i+1:])
     else:
         experiment_data['run'] += 1
@@ -50,8 +50,8 @@ def loop_and_test_params(experiment_data, training_val_data, training_val_target
 
         auc, acc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
 
-        experiment_data['auc_grid'][indices] = auc
-        experiment_data['auc_grid'][indices] = acc
+        experiment_data['auc_grid'][tuple(indices)] = auc
+        experiment_data['auc_grid'][tuple(indices)] = acc
         print("AUC: {}".format(auc))
 
         if auc > experiment_data['max_auc']:
