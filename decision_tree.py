@@ -39,7 +39,7 @@ class DecisionTreeClassifier:
 
         self.threads = []
         self.done_thread_count = 0
-        total_thread_estimate = 2**(self.max_depth) if self.max_depth - len(attributes) < -10 else 2**((len(attributes)+9*self.max_depth)/18)
+        total_thread_estimate = 2**(self.max_depth) if self.max_depth - len(attributes) < -10 else 2**math.ceil(((len(attributes)+9*self.max_depth)/18))
         self.progress_bar = progressbar.ProgressBar(max_value=total_thread_estimate, widgets=[
             'Building Tree', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
             progressbar.Bar(),
@@ -56,7 +56,7 @@ class DecisionTreeClassifier:
             print("%s%s" % (pre, node.name))
 
     def predict_prob(self, x):
-        self._predict_prob(x, self.max_depth, self.min_split_size)
+        return self._predict_prob(x, self.max_depth, self.min_split_size)
 
     def _predict_prob(self, x, max_depth, min_split_size):
         if self.tree is None:
@@ -146,6 +146,7 @@ class DecisionTreeClassifier:
                 label = stats.mode(examples_y).mode[0]
                 subtree = Node("")
                 subtree.test = cat_test(best_attribute_i, val)
+                subtree.parent = node
 
                 t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, "=" + str(val) + " || ", ))
                 self.threads.append(t)
@@ -159,6 +160,7 @@ class DecisionTreeClassifier:
 
                 subtree = Node("")
                 subtree.test = reg_test(f[1], best_attribute_i, best_split_point)
+                subtree.parent = node
 
                 t = threading.Thread(target=self.grow_decision_tree, args=(
                     subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, f[0] + str(best_split_point) + " || ",))
