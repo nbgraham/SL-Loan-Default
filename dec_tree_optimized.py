@@ -14,9 +14,8 @@ f_stars = [i/n_fs for i in range(n_fs)]
 def main():
     data, target, attributes = load_loan()
 
-    lower_split_bound = math.ceil(len(data) / 1000)
-    min_split_sizes = [j for j in range(lower_split_bound, 2 * lower_split_bound, 5)]
-    max_depths = [i for i in range(3, len(attributes) * 2)]
+    min_split_sizes = [j for j in range(30, 100, 8)]
+    max_depths = [i for i in range(3, 20)]
     remainder_scores = ['gini', 'entropy']
 
     auc_grid, acc_grid = test_params(data, target, attributes, remainder_scores, max_depths, min_split_sizes)
