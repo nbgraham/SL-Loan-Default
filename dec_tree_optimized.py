@@ -1,6 +1,6 @@
 import numpy as np
 import threading
-import math
+import progressbar
 
 from data import load_loan
 from analysis import test_f_stars
@@ -38,9 +38,15 @@ def test_params(data, target, attributes, remainder_scores, max_depths, min_spli
     training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
 
     threads = []
+    total = len(remainder_scores) * len(max_depths) * len(min_split_sizes)
     progress = {
-        'total': len(remainder_scores) * len(max_depths) * len(min_split_sizes),
-        'i': 0
+        'total': total,
+        'i': 0,
+        'bar': progressbar.ProgressBar(max_value=total, widgets=[
+            'Testing params', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
+            progressbar.Bar(),
+            progressbar.Timer(), ' ', progressbar.ETA()
+        ])
     }
 
     ## Training data is the same for all trees!!! Loses some exploration/randomness
@@ -59,7 +65,7 @@ def test_params(data, target, attributes, remainder_scores, max_depths, min_spli
 
 def test_rem_score(progress, remainder_score, max_max_depths, min_min_sizes, training_data, training_target, val_data, val_target, attributes, remainder_score_i, max_depths, min_split_sizes, auc_grid, acc_grid):
     clf = DecisionTreeClassifier(remainder_score=remainder_score, max_depth=max_max_depths,
-                                 min_split_size=min_min_sizes)
+                                 min_split_size=min_min_sizes, show_progress=True)
     clf.fit(training_data, training_target, attributes)
 
     threads = []
@@ -69,7 +75,7 @@ def test_rem_score(progress, remainder_score, max_max_depths, min_min_sizes, tra
             min_split_size = min_split_sizes[min_split_size_i]
 
             progress['i'] += 1
-            print("Run {}/{}".format(progress['i'], progress['total']))
+            progress['bar'].update(progress['i'])
 
             if len(threads) >= 16:
                 threads[0].join()

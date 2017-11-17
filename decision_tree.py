@@ -3,6 +3,7 @@ from anytree import Node, RenderTree
 import numpy as np
 from scipy import stats
 import math
+import progressbar
 
 from information_gain import inf_a
 from gini import gin_a
@@ -15,7 +16,7 @@ class Attribute:
 
 
 class DecisionTreeClassifier:
-    def __init__(self, max_depth=None, min_split_size=None, remainder_score='entropy', attr_allowed=None):
+    def __init__(self, max_depth=None, min_split_size=None, remainder_score='entropy', attr_allowed=None, show_progress=False):
         self.tree = None
         self.max_depth = max_depth
         self.min_split_size = min_split_size
@@ -24,6 +25,7 @@ class DecisionTreeClassifier:
         self.attr_allowed = attr_allowed
         self.threads = None
         self.done_thread_count = 0
+        self.progress_bar = None
 
     def fit(self,x,y, attributes):
         x = np.array(x)
@@ -37,26 +39,17 @@ class DecisionTreeClassifier:
 
         self.threads = []
         self.done_thread_count = 0
+        total_thread_estimate = 2**(self.max_depth) if self.max_depth - len(attributes) < -10 else 2**((len(attributes)+9*self.max_depth)/18)
+        self.progress_bar = progressbar.ProgressBar(max_value=total_thread_estimate, widgets=[
+            'Building Tree', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
+            progressbar.Bar(),
+            progressbar.Timer(), ' ', progressbar.ETA()
+        ])
+
         self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
-
-        print('Building tree')
-
-        total_threads_est = 2**((len(attributes) + self.max_depth)/4-2)
-
-        began = False
-        prev = threading.active_count()
-        while not began or prev > 2:
-            cur = threading.active_count()
-            if cur != prev:
-                done_perc = round(min(0.99,  self.done_thread_count/total_threads_est), 4)*100
-                print("Active threads: ", cur, " Started threads: ", len(self.threads), "Done %: ", done_perc)
-                prev = cur
-            if not began and cur > 2:
-                began = True
 
         for thread in self.threads:
             thread.join()
-            print('Thread joined')
 
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
@@ -173,6 +166,7 @@ class DecisionTreeClassifier:
                 t.start()
 
         self.done_thread_count += 1
+        self.progress_bar.update(self.done_thread_count)
         return node
 
     def get_score_function(self):
