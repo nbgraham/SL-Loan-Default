@@ -17,10 +17,10 @@ def test_dec_tree(data, target, attributes):
     _max_depths = [i for i in range(3, len(attributes) * 2)]
     fs = ['gini', 'entropy']
 
-    test_model(data, target, attributes, create_decision_tree, _max_depths, fs, _min_samples)
+    experiment_data = test_model(data, target, attributes, create_decision_tree, fs, _max_depths, _min_samples)
 
 
-def create_decision_tree(max_depth, f, min_sm):
+def create_decision_tree(f, max_depth, min_sm):
     print("Creating decision tree with max_depth={}; remainder scoring with {}; min_split_size={}".format(max_depth, f, min_sm))
     return DecisionTreeClassifier(max_depth=max_depth, remainder_score=f, min_split_size=min_sm)
 
