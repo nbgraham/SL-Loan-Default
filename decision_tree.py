@@ -32,7 +32,7 @@ class DecisionTreeClassifier:
         x = np.array(x)
         self.x_shape = x[0].shape
 
-        attr_used = [False] * len(attributes)
+        attr_allowed = [True] * len(attributes)
 
         self.threads = []
         self.done_thread_count = 0
@@ -46,7 +46,7 @@ class DecisionTreeClassifier:
             ])
             self.progress_bar.update(0)
 
-        self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_used=attr_used)
+        self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_allowed=attr_allowed)
 
         for thread in self.threads:
             thread.join()
@@ -102,7 +102,7 @@ class DecisionTreeClassifier:
         pred = np.argmax(probs, axis=1)
         return pred
 
-    def grow_decision_tree(self, node, x, y, attributes, default, attr_used, classes=2, max_depth=None, label_prefix=""):
+    def grow_decision_tree(self, node, x, y, attributes, default, attr_allowed, classes=2, max_depth=None, label_prefix=""):
         node.size = len(y)
 
         y_vals, counts = np.unique(y, return_counts=True)
@@ -119,7 +119,7 @@ class DecisionTreeClassifier:
                               for i in range(classes)]).reshape(1, -1)
 
         if (len(x) == 0) or \
-                (np.all([att.categorical for att in attributes]) and np.all(attr_used)) or \
+                (np.all([att.categorical for att in attributes]) and np.all(attr_allowed)) or \
                 (max_depth is not None and max_depth < 1) or \
                 (self.min_split_size is not None and len(x) < self.min_split_size):
             node.name = label_prefix + str(default)
@@ -129,14 +129,14 @@ class DecisionTreeClassifier:
             node.name = label_prefix + str(y[0])
             return node
 
-        best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_used, x, y)
+        best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_allowed, x, y)
         best_attribute = attributes[best_attribute_i]
         node.name = label_prefix + best_attribute.name
 
         next_depth = max_depth - 1 if max_depth is not None else None
         if best_attribute.categorical:
-            attr_used = attr_used[:]
-            attr_used[best_attribute_i] = True
+            attr_allowed = attr_allowed[:]
+            attr_allowed[best_attribute_i] = False
 
             vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
             for j in range(len(vals)):
@@ -149,7 +149,7 @@ class DecisionTreeClassifier:
                 subtree.test = cat_test(best_attribute_i, val)
                 subtree.parent = node
 
-                t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, "=" + str(val) + " || ", ))
+                t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_allowed, 2, next_depth, "=" + str(val) + " || ",))
                 self.threads.append(t)
                 t.start()
         else:
@@ -164,7 +164,7 @@ class DecisionTreeClassifier:
                 subtree.parent = node
 
                 t = threading.Thread(target=self.grow_decision_tree, args=(
-                    subtree, examples_x, examples_y, attributes, label, attr_used, 2, next_depth, f[0] + str(best_split_point) + " || ",))
+                    subtree, examples_x, examples_y, attributes, label, attr_allowed, 2, next_depth, f[0] + str(best_split_point) + " || ",))
                 self.threads.append(t)
                 t.start()
 
@@ -182,7 +182,7 @@ class DecisionTreeClassifier:
             raise ValueError("Invalid remainder_score: {}".format(self.remainder_score))
         return score
 
-    def choose_best_attribute(self, attributes, attr_used, x, y):
+    def choose_best_attribute(self, attributes, attr_allowed, x, y):
         min_rem = 10 ** 10
         best_attr_i = -1
         best_split_point = -1
@@ -190,10 +190,10 @@ class DecisionTreeClassifier:
 
         if self.attr_allowed is not None:
             attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
-            attr_used = [attr_used[i] or i not in attr_to_use_indices for i in range(len(attributes))]
+            attr_allowed = [attr_allowed[i] and i in attr_to_use_indices for i in range(len(attributes))]
 
         for attr_i in range(len(attributes)):
-            if attr_used[attr_i]:
+            if not attr_allowed[attr_i]:
                 continue
 
             rem = 0
@@ -244,7 +244,7 @@ class DecisionTreeClassifier:
 
 
 class DecisionTreeRegressor(DecisionTreeClassifier):
-    def choose_best_attribute(self, attributes, attr_used, x, y):
+    def choose_best_attribute(self, attributes, attr_allowed, x, y):
         min_rem = 10 ** 10
         best_attr_i = -1
         best_split_point = -1
@@ -253,7 +253,7 @@ class DecisionTreeRegressor(DecisionTreeClassifier):
         for attr_i in range(len(attributes)):
             rem = 0
             if attributes[attr_i].categorical:
-                if attr_used[attr_i]:
+                if attr_allowed[attr_i]:
                     continue
 
                 vals, indices = np.unique(x[:, attr_i], return_inverse=True)
