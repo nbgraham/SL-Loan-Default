@@ -6,6 +6,7 @@ from decision_tree import Attribute
 
 np.random.seed(1)
 
+
 def load_loan():
     with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
         reader = csv.reader(csvfile)
@@ -45,6 +46,32 @@ def load_loan():
         Attribute("Payment 4 amount", False),
         Attribute("Payment 5 amount", False),
         Attribute("Payment 6 amount", False),
+    ]
+
+    return data, target, attributes
+
+
+def load_loan_no_history():
+    with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader, None)  # skip the headers
+        next(reader, None)
+
+        rows = []
+        targets = []
+        for row in reader:
+            # Exclude ID column and history
+            rows.append(np.array(row[1:6], dtype=int))
+            targets.append(row[-1])
+
+    data = np.vstack(rows)
+    target = np.array(targets, dtype=int)
+    attributes = [
+        Attribute("Balance Limit", False),
+        Attribute("Sex", True),
+        Attribute("Education", True),
+        Attribute("Marriage", True),
+        Attribute("Age", False),
     ]
 
     return data, target, attributes
