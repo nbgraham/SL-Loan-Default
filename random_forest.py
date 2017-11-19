@@ -78,6 +78,20 @@ class RandomForestClassifier:
 
         return pred
 
+    def predict_prob_vote(self, x):
+        # Assume binary classification
+        result = np.zeros((len(x),2))
+
+        for tree in self.trees:
+            pred = tree.predict(x)
+
+            for i in range(len(pred)):
+                result[i][pred[i]] += 1
+
+        result = result / self.n_trees
+
+        return result
+
     def predict_majority(self, x):
         label_counts = []
         for i in range(len(x)):
