@@ -51,6 +51,9 @@ class DecisionTreeClassifier:
         for thread in self.threads:
             thread.join()
 
+        if self.show_progress:
+            self.progress_bar.finish()
+
     def render(self):
         for pre, fill, node in RenderTree(self.tree):
             print("%s%s" % (pre, node.name))
@@ -154,8 +157,12 @@ class DecisionTreeClassifier:
                 t.start()
         else:
             for f in [("<=",lambda a,b: a<=b), (">",lambda a,b: a>b)]:
-                examples_x = np.vstack([x[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
-                examples_y = np.hstack([y[i] for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)])
+                split_indices = [i for i in range(len(x)) if f[1](x[i,best_attribute_i], best_split_point)]
+                if len(split_indices) < 1:
+                    break # not the best split if 0 fall on either side (it's not a split)
+
+                examples_x = x[split_indices]
+                examples_y = y[split_indices]
 
                 label = stats.mode(examples_y).mode[0]
 
