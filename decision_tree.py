@@ -32,11 +32,7 @@ class DecisionTreeClassifier:
         x = np.array(x)
         self.x_shape = x[0].shape
 
-        if self.attr_allowed is None:
-            attr_used = [False] * len(attributes)
-        else:
-            attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
-            attr_used = [i not in attr_to_use_indices for i in range(len(attributes))]
+        attr_used = [False] * len(attributes)
 
         self.threads = []
         self.done_thread_count = 0
@@ -135,12 +131,13 @@ class DecisionTreeClassifier:
 
         best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_used, x, y)
         best_attribute = attributes[best_attribute_i]
-        attr_used = attr_used[:]
-        attr_used[best_attribute_i] = True
         node.name = label_prefix + best_attribute.name
 
         next_depth = max_depth - 1 if max_depth is not None else None
         if best_attribute.categorical:
+            attr_used = attr_used[:]
+            attr_used[best_attribute_i] = True
+
             vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
             for j in range(len(vals)):
                 val = vals[j]
@@ -191,12 +188,16 @@ class DecisionTreeClassifier:
         best_split_point = -1
         score = self.get_score_function()
 
+        if self.attr_allowed is not None:
+            attr_to_use_indices = np.random.choice(len(attributes), self.attr_allowed, replace=False)
+            attr_used = [attr_used[i] or i not in attr_to_use_indices for i in range(len(attributes))]
+
         for attr_i in range(len(attributes)):
+            if attr_used[attr_i]:
+                continue
+
             rem = 0
             if attributes[attr_i].categorical:
-                if attr_used[attr_i]:
-                    continue
-
                 vals, indices = np.unique(x[:, attr_i], return_inverse=True)
 
                 for j in range(len(vals)):
