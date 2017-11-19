@@ -170,7 +170,7 @@ class DecisionTreeClassifier:
 
         self.done_thread_count += 1
         if self.show_progress:
-            self.progress_bar.update(self.done_thread_count)
+            self.progress_bar.update(min(self.progress_bar.max_value, self.done_thread_count))
         return node
 
     def get_score_function(self):
