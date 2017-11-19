@@ -18,13 +18,31 @@ def main():
     max_depths = [i for i in range(3, 20)]
     remainder_scores = ['gini', 'entropy']
 
-    auc_grid, acc_grid = test_params(data, target, attributes, remainder_scores, max_depths, min_split_sizes)
+    training_val_data, training_val_target, test_data, test_target = split(data, target)
+
+    auc_grids = []
+    acc_grids = []
+    bar = progressbar.ProgressBar(max_value=10)
+    for i in bar(range(10)):
+        auc_grid, acc_grid = test_params(training_val_data, training_val_target, attributes, remainder_scores, max_depths, min_split_sizes)
+        auc_grids.append(auc_grid)
+        acc_grids.append(acc_grid)
+
+    avg_auc_grid = 0
+    for grid in auc_grids:
+        avg_auc_grid += grid
+    avg_auc_grid /= len(auc_grids)
+
+    avg_acc_grid = 0
+    for grid in acc_grids:
+        avg_acc_grid += grid
+    avg_acc_grid /= len(acc_grids)
 
     with open('auc.npy', 'wb') as auc:
-        np.save(auc, auc_grid)
+        np.save(auc, avg_auc_grid)
 
     with open('acc.npy', 'wb') as acc:
-        np.save(acc, acc_grid)
+        np.save(acc, avg_acc_grid)
 
 
 def test_params(data, target, attributes, remainder_scores, max_depths, min_split_sizes):
@@ -34,19 +52,18 @@ def test_params(data, target, attributes, remainder_scores, max_depths, min_spli
     auc_grid = np.empty((len(remainder_scores), len(max_depths), len(min_split_sizes)))
     acc_grid = np.empty((len(remainder_scores), len(max_depths), len(min_split_sizes)))
 
-    training_val_data, training_val_target, test_data, test_target = split(data, target)
-    training_data, training_target, val_data, val_target = split(training_val_data, training_val_target)
+    training_data, training_target, val_data, val_target = split(data, target)
 
     threads = []
     total = len(remainder_scores) * len(max_depths) * len(min_split_sizes)
     progress = {
         'total': total,
         'i': 0,
-        'bar': progressbar.ProgressBar(max_value=total, widgets=[
-            'Testing params ', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
-            progressbar.Bar(),
-            progressbar.Timer(), ' ', progressbar.ETA()
-        ])
+        # 'bar': progressbar.ProgressBar(max_value=total, widgets=[
+        #     'Testing params ', progressbar.Percentage(), ' (', progressbar.SimpleProgress(), ') ',
+        #     progressbar.Bar(),
+        #     progressbar.Timer(), ' ', progressbar.ETA()
+        # ])
     }
 
     ## Training data is the same for all trees!!! Loses some exploration/randomness
@@ -65,17 +82,18 @@ def test_params(data, target, attributes, remainder_scores, max_depths, min_spli
 
 def test_rem_score(progress, remainder_score, max_max_depths, min_min_sizes, training_data, training_target, val_data, val_target, attributes, remainder_score_i, max_depths, min_split_sizes, auc_grid, acc_grid):
     clf = DecisionTreeClassifier(remainder_score=remainder_score, max_depth=max_max_depths,
-                                 min_split_size=min_min_sizes, show_progress=True)
+                                 min_split_size=min_min_sizes, show_progress=False)
     clf.fit(training_data, training_target, attributes)
 
-    threads = []
+    threads = [];
     for max_depth_i in range(len(max_depths)):
         for min_split_size_i in range(len(min_split_sizes)):
             max_depth = max_depths[max_depth_i]
             min_split_size = min_split_sizes[min_split_size_i]
 
             progress['i'] += 1
-            progress['bar'].update(progress['i'])
+            if 'bar' in progress:
+                progress['bar'].update(progress['i'])
 
             if len(threads) >= 16:
                 threads[0].join()
