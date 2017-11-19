@@ -21,10 +21,16 @@ class RandomForestClassifier:
 
         self.trees = []
         for i in range(self.n_trees):
-            tree = DecisionTreeClassifier(min_split_size=self.min_split_size, max_depth=self.max_depth, remainder_score=self.remainder_score, attr_allowed=self.max_features(len(attributes)))
+            tree = DecisionTreeClassifier(min_split_size=self.min_split_size, max_depth=self.max_depth, remainder_score=self.remainder_score)
 
+            # Random attribute selection
+            attr_to_use_indices = np.random.choice(len(attributes), self.max_features(len(attributes)), replace=False)
+            attr_allowed = [i in attr_to_use_indices for i in range(len(attributes))]
+
+            # Bagging
             data_to_used_indices = np.random.choice(len(x), len(x))
-            tree.fit(x[data_to_used_indices], y[data_to_used_indices], attributes)
+
+            tree.fit(x[data_to_used_indices], y[data_to_used_indices], attributes, attr_allowed=attr_allowed)
 
             self.trees.append(tree)
 
