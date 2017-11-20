@@ -46,7 +46,7 @@ class Adaboost:
 
         return self.models, self.errs
 
-    def predict(self,x):
+    def predict_prob(self,x):
         # Assume binary
         classification = np.zeros((2,len(x)))
 
@@ -59,5 +59,13 @@ class Adaboost:
             for pred in np.unique(preds):
                 classification[pred][preds==pred] -= log2(self.errs[i]/(1-self.errs[i]))
 
-        return np.argmax(classification.T, axis=1)
+        classification = classification.T
+        classification /= np.sum(classification[0])
+
+        return classification
+
+    def predict(self,x):
+        predictions = self.predict_prob(x)
+
+        return np.argmax(predictions, axis=1)
 
