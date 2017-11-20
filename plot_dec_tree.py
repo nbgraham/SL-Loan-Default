@@ -8,7 +8,7 @@ def plot(metric):
     gini = a [0]
     entropy = a [1]
 
-    min_split_sizes = [j for j in range(30, 100, 8)]
+    min_split_sizes = [j for j in range(40, 200, 20)]
     max_depths = [i for i in range(3, 20)]
 
     plt.imshow(gini)
