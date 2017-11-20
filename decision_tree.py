@@ -5,8 +5,8 @@ from scipy import stats
 import math
 import progressbar
 
-from information_gain import inf_a
-from gini import gin_a
+from information_gain import inf_a, inf_a_weighted
+from gini import gin_a, gini_a_weighted
 
 
 class Attribute:
@@ -28,7 +28,7 @@ class DecisionTreeClassifier:
         self.progress_bar = None
         self.show_progress = show_progress
 
-    def fit(self,x,y, attributes):
+    def fit(self,x,y, attributes, weights = None):
         x = np.array(x)
         self.x_shape = x[0].shape
 
@@ -46,7 +46,7 @@ class DecisionTreeClassifier:
             ])
             self.progress_bar.update(0)
 
-        self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_allowed=attr_allowed)
+        self.tree = self.grow_decision_tree(Node(""), x, y, attributes, y[0], classes=len(np.unique(y)), max_depth=self.max_depth, attr_allowed=attr_allowed, weights=weights)
 
         for thread in self.threads:
             thread.join()
@@ -105,7 +105,7 @@ class DecisionTreeClassifier:
         pred = np.argmax(probs, axis=1)
         return pred
 
-    def grow_decision_tree(self, node, x, y, attributes, default, attr_allowed, classes=2, max_depth=None, label_prefix=""):
+    def grow_decision_tree(self, node, x, y, attributes, default, attr_allowed, classes=2, max_depth=None, label_prefix="", weights=None):
         node.size = len(y)
 
         y_vals, counts = np.unique(y, return_counts=True)
@@ -132,7 +132,7 @@ class DecisionTreeClassifier:
             node.name = label_prefix + str(y[0])
             return node
 
-        best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_allowed, x, y)
+        best_attribute_i, best_split_point = self.choose_best_attribute(attributes, attr_allowed, x, y, weights)
         best_attribute = attributes[best_attribute_i]
         node.name = label_prefix + best_attribute.name
 
@@ -144,15 +144,18 @@ class DecisionTreeClassifier:
             vals, indices = np.unique(x[:, best_attribute_i], return_inverse=True)
             for j in range(len(vals)):
                 val = vals[j]
-                examples_x = np.vstack([x[i] for i in range(len(x)) if indices[i] == j])
-                examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
+
+                indices_that_match = [i for i in range(len(x)) if indices[i] == j]
+                examples_x = x[indices_that_match]
+                examples_y = y[indices_that_match]
+                examples_weights = None if weights is None else weights[indices_that_match]
 
                 label = stats.mode(examples_y).mode[0]
                 subtree = Node("")
                 subtree.test = cat_test(best_attribute_i, val)
                 subtree.parent = node
 
-                t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_allowed, 2, next_depth, "=" + str(val) + " || ",))
+                t = threading.Thread(target=self.grow_decision_tree, args=(subtree, examples_x, examples_y, attributes, label, attr_allowed, 2, next_depth, "=" + str(val) + " || ",examples_weights))
                 self.threads.append(t)
                 t.start()
         else:
@@ -163,6 +166,7 @@ class DecisionTreeClassifier:
 
                 examples_x = x[split_indices]
                 examples_y = y[split_indices]
+                examples_weights = None if weights is None else weights[split_indices]
 
                 label = stats.mode(examples_y).mode[0]
 
@@ -171,7 +175,7 @@ class DecisionTreeClassifier:
                 subtree.parent = node
 
                 t = threading.Thread(target=self.grow_decision_tree, args=(
-                    subtree, examples_x, examples_y, attributes, label, attr_allowed, 2, next_depth, f[0] + str(best_split_point) + " || ",))
+                    subtree, examples_x, examples_y, attributes, label, attr_allowed, 2, next_depth, f[0] + str(best_split_point) + " || ",examples_weights))
                 self.threads.append(t)
                 t.start()
 
@@ -181,15 +185,22 @@ class DecisionTreeClassifier:
         return node
 
     def get_score_function(self):
-        if self.remainder_score == 'entropy':
-            score = inf_a
-        elif self.remainder_score == 'gini':
-            score = gin_a
-        else:
-            raise ValueError("Invalid remainder_score: {}".format(self.remainder_score))
-        return score
+        def f(y_vals, weights):
+            if self.remainder_score == 'entropy':
+                if weights is None:
+                    return inf_a(y_vals)
+                else:
+                    return inf_a_weighted(y_vals, weights)
+            elif self.remainder_score == 'gini':
+                if weights is None:
+                    return gin_a(y_vals)
+                else:
+                    return gini_a_weighted(y_vals, weights)
+            else:
+                raise ValueError("Invalid remainder_score: {}".format(self.remainder_score))
+        return f
 
-    def choose_best_attribute(self, attributes, attr_allowed, x, y):
+    def choose_best_attribute(self, attributes, attr_allowed, x, y, weights=None):
         min_rem = 10 ** 10
         best_attr_i = -1
         best_split_point = -1
@@ -209,7 +220,7 @@ class DecisionTreeClassifier:
 
                 for j in range(len(vals)):
                     examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
-                    rem += len(examples_y) / len(y) * score(examples_y)
+                    rem += len(examples_y) / len(y) * score(examples_y, weights)
                     if rem > min_rem:
                         break
 
@@ -228,19 +239,21 @@ class DecisionTreeClassifier:
                         continue
 
                     before_split_y = y[before_split_indexes]
+                    before_weights = weights[before_split_indexes]
                     after_split_y = y[after_split_indexes]
+                    after_weights = weights[after_split_indexes]
 
                     if len(before_split_y) < len(after_split_y):
-                        first = before_split_y
-                        second = after_split_y
+                        first = (before_split_y, before_weights)
+                        second = (after_split_y, after_weights)
                     else:
-                        first = after_split_y
-                        second = before_split_y
+                        first = (after_split_y, after_weights)
+                        second = (before_split_y, before_weights)
 
-                    rem = len(first) / len(y) * score(first)
+                    rem = len(first) / len(y) * score(*first)
                     if rem > min_rem:
                         continue
-                    rem += len(second) / len(y) * score(second)
+                    rem += len(second) / len(y) * score(*second)
 
                     if rem < min_rem:
                         min_rem = rem

@@ -8,6 +8,19 @@ def inf_a(array):
     return inf(*fractions)
 
 
+def inf_a_weighted(array, weights):
+    counts = {}
+    for i in range(len(array)):
+        val = array[i]
+        if val in counts:
+            counts[val] += weights[i]
+        else:
+            counts[val] = weights[i]
+
+    fractions = [counts[i]/np.sum(weights) for i in counts]
+    return inf(*fractions)
+
+
 def inf(*args):
     sum = 0
     for a in args:
