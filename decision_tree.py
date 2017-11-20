@@ -252,10 +252,10 @@ class DecisionTreeClassifier:
                         first = (after_split_y, after_weights)
                         second = (before_split_y, before_weights)
 
-                    rem = len(first) / len(y) * score(*first)
+                    rem = len(first[0]) / len(y) * score(*first)
                     if rem > min_rem:
                         continue
-                    rem += len(second) / len(y) * score(*second)
+                    rem += len(second[0]) / len(y) * score(*second)
 
                     if rem < min_rem:
                         min_rem = rem

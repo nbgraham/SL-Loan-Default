@@ -4,7 +4,7 @@ from math import log2
 from decision_tree import DecisionTreeClassifier
 
 
-def default_create_model(min_split_size=100, max_depth=6, remainder_score='entropy'):
+def default_create_model(min_split_size=100, max_depth=4, remainder_score='entropy'):
     return DecisionTreeClassifier(min_split_size=min_split_size, max_depth=max_depth,
                        remainder_score=remainder_score, show_progress=False)
 
@@ -51,9 +51,13 @@ class Adaboost:
         classification = np.zeros((2,len(x)))
 
         for i in range(self.n_models):
-            pred = self.models[i].predict(x)
+            if i >= len(self.models):
+                break
 
-            classification[pred] -= log2(self.errs[i]/(1-self.errs[i]))
+            preds = self.models[i].predict(x)
+
+            for pred in np.unique(preds):
+                classification[pred][preds==pred] -= log2(self.errs[i]/(1-self.errs[i]))
 
         return np.argmax(classification.T, axis=1)
 
