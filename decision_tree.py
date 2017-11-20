@@ -219,8 +219,10 @@ class DecisionTreeClassifier:
                 vals, indices = np.unique(x[:, attr_i], return_inverse=True)
 
                 for j in range(len(vals)):
-                    examples_y = np.hstack([y[i] for i in range(len(x)) if indices[i] == j])
-                    rem += len(examples_y) / len(y) * score(examples_y, weights)
+                    split_indices = [i for i in range(len(x)) if indices[i] == j]
+                    examples_y = y[split_indices]
+                    examples_weights = weights[split_indices]
+                    rem += len(examples_y) / len(y) * score(examples_y, examples_weights)
                     if rem > min_rem:
                         break
 
