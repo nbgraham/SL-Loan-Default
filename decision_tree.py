@@ -108,18 +108,24 @@ class DecisionTreeClassifier:
     def grow_decision_tree(self, node, x, y, attributes, default, attr_allowed, classes=2, max_depth=None, label_prefix="", weights=None):
         node.size = len(y)
 
-        y_vals, counts = np.unique(y, return_counts=True)
-        i_counts = 0
-        true_counts = []
-        for i in range(classes):
-            if i in y_vals:
-                true_counts.append(counts[i_counts])
-                i_counts += 1
-            else:
-                true_counts.append(0)
-
-        node.prob = np.array([true_counts[i] / len(y)
-                              for i in range(classes)]).reshape(1, -1)
+        if weights is None:
+            y_vals, counts = np.unique(y, return_counts=True)
+            i_counts = 0
+            true_counts = []
+            for i in range(classes):
+                if i in y_vals:
+                    true_counts.append(counts[i_counts])
+                    i_counts += 1
+                else:
+                    true_counts.append(0)
+            node.prob = np.array([true_counts[i] / len(y)
+                                  for i in range(classes)]).reshape(1, -1)
+        else:
+            prob = np.zeros(classes)
+            for label in range(classes):
+                prob[label] = np.sum(weights[y==label])
+            prob /= np.sum(prob)
+            node.prob = prob.reshape(1,-1)
 
         if (len(x) == 0) or \
                 (np.all([att.categorical for att in attributes]) and np.all(attr_allowed)) or \
