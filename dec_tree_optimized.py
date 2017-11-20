@@ -14,7 +14,7 @@ f_stars = [i/n_fs for i in range(n_fs)]
 def main():
     data, target, attributes = load_loan()
 
-    min_split_sizes = [j for j in range(30, 100, 8)]
+    min_split_sizes = [j for j in range(40, 200, 20)]
     max_depths = [i for i in range(3, 20)]
     remainder_scores = ['gini', 'entropy']
 
