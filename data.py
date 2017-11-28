@@ -8,7 +8,8 @@ np.random.seed(1)
 
 
 def load_loan():
-    with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
+    with open(r'UCI_Credit_Card.csv','r') as csvfile:
+    # with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader, None)  # skip the headers
         next(reader, None)
@@ -52,7 +53,8 @@ def load_loan():
 
 
 def load_loan_no_history():
-    with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
+    with open(r'UCI_Credit_Card.csv','r') as csvfile:
+    # with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader, None)  # skip the headers
         next(reader, None)
