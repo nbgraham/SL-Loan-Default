@@ -227,7 +227,7 @@ class DecisionTreeClassifier:
                 for j in range(len(vals)):
                     split_indices = [i for i in range(len(x)) if indices[i] == j]
                     examples_y = y[split_indices]
-                    examples_weights = weights[split_indices]
+                    examples_weights = weights[split_indices] if weights is not None else None
                     rem += len(examples_y) / len(y) * score(examples_y, examples_weights)
                     if rem > min_rem:
                         break
@@ -247,9 +247,9 @@ class DecisionTreeClassifier:
                         continue
 
                     before_split_y = y[before_split_indexes]
-                    before_weights = weights[before_split_indexes]
+                    before_weights = weights[before_split_indexes] if weights is not None else None
                     after_split_y = y[after_split_indexes]
-                    after_weights = weights[after_split_indexes]
+                    after_weights = weights[after_split_indexes] if weights is not None else None
 
                     if len(before_split_y) < len(after_split_y):
                         first = (before_split_y, before_weights)
