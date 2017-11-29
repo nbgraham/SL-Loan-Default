@@ -83,13 +83,13 @@ def split(data, target, training=0.8):
     indices = np.arange(len(data))
     np.random.shuffle(indices)
 
-    split = math.ceil(training*len(data))
+    split_point = math.ceil(training*len(data))
 
-    training_data = data[indices[:split]]
-    training_target = target[indices[:split]]
+    training_data = data[indices[:split_point]]
+    training_target = target[indices[:split_point]]
 
-    test_data = data[indices[split:]]
-    test_target = target[indices[split:]]
+    test_data = data[indices[split_point:]]
+    test_target = target[indices[split_point:]]
 
     return training_data, training_target, test_data, test_target
 
