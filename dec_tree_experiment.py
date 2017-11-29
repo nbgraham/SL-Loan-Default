@@ -20,10 +20,10 @@ def test_dec_tree(data, target, attributes):
 
     experiment_data = test_model(data, target, attributes, create_decision_tree, fs, _max_depths, _min_samples)
 
-    with open('auc.npy', 'wb') as auc:
+    with open('dec_tree_auc.npy', 'wb') as auc:
         np.save(auc, experiment_data['auc_grid'])
 
-    with open('acc.npy', 'wb') as acc:
+    with open('dec_tree_acc.npy', 'wb') as acc:
         np.save(acc, experiment_data['acc_grid'])
 
 

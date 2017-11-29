@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 from random_forest import RandomForestClassifier
@@ -8,21 +7,20 @@ from model_experiment import test_model
 
 def main(history=True):
     data, target, attributes = load_loan() if history else load_loan_no_history()
+    test_random_forest(data, target, attributes)
 
-    test_dec_tree(data, target, attributes)
 
-
-def test_dec_tree(data, target, attributes):
+def test_random_forest(data, target, attributes):
     _n_estimators = [j for j in range(10,100,10)]
     _max_depths = [i for i in range(3, len(attributes) * 2)]
     fs = ['gini', 'entropy']
 
     experiment_data = test_model(data, target, attributes, create_random_forest, fs, _max_depths, _n_estimators)
 
-    with open('auc.npy', 'wb') as auc:
+    with open('random_forest_auc.npy', 'wb') as auc:
         np.save(auc, experiment_data['auc_grid'])
 
-    with open('acc.npy', 'wb') as acc:
+    with open('random_forest_acc.npy', 'wb') as acc:
         np.save(acc, experiment_data['acc_grid'])
 
 

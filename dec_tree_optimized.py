@@ -38,10 +38,10 @@ def main(history=True):
         avg_acc_grid += grid
     avg_acc_grid /= len(acc_grids)
 
-    with open('auc.npy', 'wb') as auc:
+    with open('dec_tree_auc.npy', 'wb') as auc:
         np.save(auc, avg_auc_grid)
 
-    with open('acc.npy', 'wb') as acc:
+    with open('dec_tree_acc.npy', 'wb') as acc:
         np.save(acc, avg_acc_grid)
 
 
