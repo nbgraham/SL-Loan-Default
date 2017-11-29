@@ -1,60 +1,34 @@
-from analysis import test_f_stars
-from data import load_loan, split
-from random_forest import RandomForestClassifier
-
+import math
 import numpy as np
-from matplotlib import pyplot as plt
+
+from random_forest import RandomForestClassifier
+from data import load_loan
+from model_experiment import test_model
+
 
 def main():
     data, target, attributes = load_loan()
-    training_val_data, training_val_target, test_data, test_target = split(data, target)
 
-    clf = RandomForestClassifier(max_depth=6, n_trees=10, min_split_size=100, show_progress=True)
-    clf.fit(training_val_data, training_val_target, attributes)
-
-    # pred = clf.predict_prob_vote(test_data) w/ 100 trees AUC = 0.73
-    pred = clf.predict_prob(test_data) # w/100 trees AUC = 0.78
-
-    rel(pred[:,1]*1.05, test_target)
-
-    f_stars = [i/100 for i in range(100)]
-    auc, acc = test_f_stars(pred, test_target, f_stars)
-
-    print("AUC: ", auc, " Accuracy: ", acc)
+    test_dec_tree(data, target, attributes)
 
 
-def rel(pred, target):
-    cond_event_freqs = []
-    predicted_freqs = []
+def test_dec_tree(data, target, attributes):
+    _n_estimators = [j for j in range(10,100,10)]
+    _max_depths = [i for i in range(3, len(attributes) * 2)]
+    fs = ['gini', 'entropy']
 
-    buckets = 10
-    for i in range(buckets):
-        prediction_start = i/10
-        prediction_end = (i+1)/10
+    experiment_data = test_model(data, target, attributes, create_random_forest, fs, _max_depths, _n_estimators)
 
-        target_indices_in_prediction_range = (pred >= prediction_start)*(pred < prediction_end)
+    with open('auc.npy', 'wb') as auc:
+        np.save(auc, experiment_data['auc_grid'])
 
-        cond_event_freq = np.sum(target[target_indices_in_prediction_range])/np.sum(target_indices_in_prediction_range)
+    with open('acc.npy', 'wb') as acc:
+        np.save(acc, experiment_data['acc_grid'])
 
-        cond_event_freqs.append(cond_event_freq)
-        predicted_freqs.append((i+.5)/10)
 
-    perfect = [i/buckets for i in range(buckets)]
-
-    rel = 0
-    for i in range(len(cond_event_freqs)):
-        rel += (cond_event_freqs[i]-predicted_freqs[i])**2
-
-    print("Reliability = ", rel)
-
-    plt.plot(perfect, perfect, "--", label="Perfect")
-    plt.plot(predicted_freqs, cond_event_freqs, label="Model")
-    plt.title("Reliability")
-    plt.xlabel("Predicted Event Freq")
-    plt.ylabel("Conditional Event Freq")
-    plt.legend()
-    plt.show()
-
+def create_random_forest(f, max_depth, n_est):
+    print("Creating random forest with max_depth={}; remainder scoring with {}; n_estimators={}".format(max_depth, f, n_est))
+    return RandomForestClassifier(max_depth=max_depth, remainder_score=f, n_trees=n_est)
 
 
 if __name__ == "__main__":
