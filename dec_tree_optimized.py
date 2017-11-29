@@ -2,7 +2,7 @@ import numpy as np
 import threading
 import progressbar
 
-from data import load_loan
+from data import load_loan, load_loan_no_history
 from analysis import test_f_stars
 from data import split
 from decision_tree import DecisionTreeClassifier
@@ -11,8 +11,8 @@ n_fs = 100
 f_stars = [i/n_fs for i in range(n_fs)]
 
 
-def main():
-    data, target, attributes = load_loan()
+def main(history=True):
+    data, target, attributes = load_loan() if history else load_loan_no_history()
 
     min_split_sizes = [j for j in range(40, 200, 20)]
     max_depths = [i for i in range(3, 20)]

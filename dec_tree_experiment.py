@@ -2,12 +2,12 @@ import math
 import numpy as np
 
 from decision_tree import DecisionTreeClassifier
-from data import load_loan
+from data import load_loan, load_loan_no_history
 from model_experiment import test_model
 
 
-def main():
-    data, target, attributes = load_loan()
+def main(history=True):
+    data, target, attributes = load_loan() if history else load_loan_no_history()
 
     test_dec_tree(data, target, attributes)
 
