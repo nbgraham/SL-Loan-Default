@@ -9,7 +9,7 @@ def main():
     data, target, attributes = load_loan()
     training_val_data, training_val_target, test_data, test_target = split(data, target)
 
-    clf = RandomForestClassifier(max_depth=6, n_trees=10, min_split_size=100, show_progress=True)
+    clf = RandomForestClassifier(max_depth=6, n_trees=1, min_split_size=100, show_progress=True)
     clf.fit(training_val_data, training_val_target, attributes)
 
     # pred = clf.predict_prob_vote(test_data) w/ 100 trees AUC = 0.73
