@@ -6,6 +6,9 @@ def read(filename='random_forest_results.txt'):
         read_data = f.read()
         lines = read_data.split('\n')
 
+        max_auc = 0
+        max_run = 0
+
         aucs = []
         row = []
 
@@ -32,6 +35,10 @@ def read(filename='random_forest_results.txt'):
             elif line[:3] == "AUC":
                 auc = float(line[4:])
 
+                if auc > max_auc:
+                    max_auc = auc
+                    max_run = run
+
                 if last_depth == -1:
                     depths.append(depth)
                     row.append(auc)
@@ -43,6 +50,7 @@ def read(filename='random_forest_results.txt'):
                     row = [auc]
                 last_depth = depth
 
+        print("Max AUC:{} at run {}".format(max_auc, max_run))
         auc_grid = np.array(aucs)
 
         plt.imshow(auc_grid)
