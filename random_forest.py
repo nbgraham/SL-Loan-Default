@@ -7,14 +7,21 @@ from decision_tree import DecisionTreeClassifier
 
 np.random.seed(1)
 
+
+def bagging(x,y,i,n):
+    data_to_use_indices = np.random.choice(len(x), len(x))
+    return x[data_to_use_indices], y[data_to_use_indices]
+
+
 class RandomForestClassifier:
-    def __init__(self, n_trees=10, max_features=lambda x: math.floor(math.sqrt(x)), min_split_size=None, max_depth=None, remainder_score='gini', show_progress=False):
+    def __init__(self, n_trees=10, max_features=lambda x: math.floor(math.sqrt(x)), min_split_size=None, max_depth=None, remainder_score='gini', show_progress=False, sample=bagging):
         self.n_trees = n_trees
         self.max_features = max_features
         self.max_depth = max_depth
         self.remainder_score = remainder_score
         self.min_split_size = min_split_size
         self.show_progress = show_progress
+        self.sample = sample
 
         self.trees = None
 
@@ -33,20 +40,20 @@ class RandomForestClassifier:
         self.trees = []
         threads = []
         for i in range(self.n_trees):
-            t = threading.Thread(target=self.fit_one_tree, args=(x, y, attributes))
+            t = threading.Thread(target=self.fit_one_tree, args=(x, y, attributes, i))
             threads.append(t)
             t.start()
 
         for thread in threads:
             thread.join()
 
-    def fit_one_tree(self, x, y, attributes):
+    def fit_one_tree(self, x, y, attributes, i):
         tree = DecisionTreeClassifier(min_split_size=self.min_split_size, max_depth=self.max_depth,
                                       remainder_score=self.remainder_score,
                                       attr_allowed=self.max_features(len(attributes)), show_progress=True)
 
-        data_to_used_indices = np.random.choice(len(x), len(x))
-        tree.fit(x[data_to_used_indices], y[data_to_used_indices], attributes)
+        samp_x, samp_y = self.sample(x,y,i,self.n_trees)
+        tree.fit(samp_x, samp_y, attributes)
 
         self.trees.append(tree)
         if self.show_progress:
@@ -117,5 +124,3 @@ class RandomForestClassifier:
             winners.append(pred)
 
         return np.array(winners)
-
-
