@@ -11,8 +11,8 @@ def main(history=True):
 
 
 def test_random_forest(data, target, attributes):
-    _n_estimators = [j for j in range(10,100,20)]
-    _max_depths = [i for i in range(3, len(attributes) * 2,2)]
+    _n_estimators = [j for j in range(40,100,20)]
+    _max_depths = [i for i in range(4,12,2)]
     fs = ['gini', 'entropy']
 
     experiment_data = test_model(data, target, attributes, create_random_forest, fs, _max_depths, _n_estimators)
