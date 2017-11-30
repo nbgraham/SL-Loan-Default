@@ -1,0 +1,316 @@
+--- Run 1/220
+Creating random forest with max_depth=3; remainder scoring with gini; n_estimators=10
+AUC: 0.7660347315966338
+New best AUC!
+New best accuracy!
+--- Run 2/220
+Creating random forest with max_depth=3; remainder scoring with gini; n_estimators=30
+AUC: 0.762667457212296
+--- Run 3/220
+Creating random forest with max_depth=3; remainder scoring with gini; n_estimators=50
+AUC: 0.7678412529776439
+New best AUC!
+New best accuracy!
+--- Run 4/220
+Creating random forest with max_depth=3; remainder scoring with gini; n_estimators=70
+AUC: 0.7700290408734982
+New best AUC!
+New best accuracy!
+--- Run 5/220
+Creating random forest with max_depth=3; remainder scoring with gini; n_estimators=90
+AUC: 0.7629754799616507
+--- Run 6/220
+Creating random forest with max_depth=5; remainder scoring with gini; n_estimators=10
+AUC: 0.7693867739113418
+--- Run 7/220
+Creating random forest with max_depth=5; remainder scoring with gini; n_estimators=30
+AUC: 0.7698471409286862
+--- Run 8/220
+Creating random forest with max_depth=5; remainder scoring with gini; n_estimators=50
+AUC: 0.7752524018333942
+New best AUC!
+New best accuracy!
+--- Run 9/220
+Creating random forest with max_depth=5; remainder scoring with gini; n_estimators=70
+AUC: 0.7908494999687576
+New best AUC!
+New best accuracy!
+--- Run 10/220
+Creating random forest with max_depth=5; remainder scoring with gini; n_estimators=90
+AUC: 0.7646857695077636
+--- Run 11/220
+Creating random forest with max_depth=7; remainder scoring with gini; n_estimators=10
+AUC: 0.7740768460542709
+--- Run 12/220
+Creating random forest with max_depth=7; remainder scoring with gini; n_estimators=30
+AUC: 0.7603002180529551
+--- Run 13/220
+Creating random forest with max_depth=7; remainder scoring with gini; n_estimators=50
+AUC: 0.7867097518467293
+--- Run 14/220
+Creating random forest with max_depth=7; remainder scoring with gini; n_estimators=70
+AUC: 0.7667198062758552
+--- Run 15/220
+Creating random forest with max_depth=7; remainder scoring with gini; n_estimators=90
+AUC: 0.7736406687350934
+--- Run 16/220
+Creating random forest with max_depth=9; remainder scoring with gini; n_estimators=10
+AUC: 0.7601221815904701
+--- Run 17/220
+Creating random forest with max_depth=9; remainder scoring with gini; n_estimators=30
+AUC: 0.7828153229219226
+--- Run 18/220
+Creating random forest with max_depth=9; remainder scoring with gini; n_estimators=50
+AUC: 0.7769505743315261
+--- Run 19/220
+Creating random forest with max_depth=9; remainder scoring with gini; n_estimators=70
+AUC: 0.7785237455197134
+--- Run 20/220
+Creating random forest with max_depth=9; remainder scoring with gini; n_estimators=90
+AUC: 0.7723997582968473
+--- Run 21/220
+Creating random forest with max_depth=11; remainder scoring with gini; n_estimators=10
+AUC: 0.7633700481175755
+--- Run 22/220
+Creating random forest with max_depth=11; remainder scoring with gini; n_estimators=30
+AUC: 0.7719481628773794
+--- Run 23/220
+Creating random forest with max_depth=11; remainder scoring with gini; n_estimators=50
+AUC: 0.7855361907803088
+--- Run 24/220
+Creating random forest with max_depth=11; remainder scoring with gini; n_estimators=70
+AUC: 0.7714598530283134
+--- Run 25/220
+Creating random forest with max_depth=11; remainder scoring with gini; n_estimators=90
+AUC: 0.7720305930599753
+--- Run 26/220
+Creating random forest with max_depth=13; remainder scoring with gini; n_estimators=10
+AUC: 0.7669339279897773
+--- Run 27/220
+Creating random forest with max_depth=13; remainder scoring with gini; n_estimators=30
+AUC: 0.7746194804099622
+--- Run 28/220
+Creating random forest with max_depth=13; remainder scoring with gini; n_estimators=50
+AUC: 0.7830050430429882
+--- Run 29/220
+Creating random forest with max_depth=13; remainder scoring with gini; n_estimators=70
+AUC: 0.7806344625879049
+--- Run 30/220
+Creating random forest with max_depth=13; remainder scoring with gini; n_estimators=90
+AUC: 0.7697016008585171
+--- Run 31/220
+Creating random forest with max_depth=15; remainder scoring with gini; n_estimators=10
+AUC: 0.7516055830233466
+--- Run 32/220
+Creating random forest with max_depth=15; remainder scoring with gini; n_estimators=30
+AUC: 0.7598186428264037
+--- Run 33/220
+Creating random forest with max_depth=15; remainder scoring with gini; n_estimators=50
+AUC: 0.7684119863689233
+--- Run 34/220
+Creating random forest with max_depth=15; remainder scoring with gini; n_estimators=70
+AUC: 0.7686185475454126
+--- Run 35/220
+Creating random forest with max_depth=15; remainder scoring with gini; n_estimators=90
+AUC: 0.7702436229613969
+--- Run 36/220
+Creating random forest with max_depth=17; remainder scoring with gini; n_estimators=10
+AUC: 0.7451709029012517
+--- Run 37/220
+Creating random forest with max_depth=17; remainder scoring with gini; n_estimators=30
+AUC: 0.775696780902403
+--- Run 38/220
+Creating random forest with max_depth=17; remainder scoring with gini; n_estimators=50
+AUC: 0.7566311308870286
+--- Run 39/220
+Creating random forest with max_depth=17; remainder scoring with gini; n_estimators=70
+AUC: 0.7795296492124082
+--- Run 40/220
+Creating random forest with max_depth=17; remainder scoring with gini; n_estimators=90
+AUC: 0.751777961564531
+--- Run 41/220
+Creating random forest with max_depth=19; remainder scoring with gini; n_estimators=10
+AUC: 0.7385960726342875
+--- Run 42/220
+Creating random forest with max_depth=19; remainder scoring with gini; n_estimators=30
+AUC: 0.7582255427980792
+--- Run 43/220
+Creating random forest with max_depth=19; remainder scoring with gini; n_estimators=50
+AUC: 0.770385517350126
+--- Run 44/220
+Creating random forest with max_depth=19; remainder scoring with gini; n_estimators=70
+AUC: 0.7772880644074813
+--- Run 45/220
+Creating random forest with max_depth=19; remainder scoring with gini; n_estimators=90
+AUC: 0.7645253289939333
+--- Run 46/220
+Creating random forest with max_depth=21; remainder scoring with gini; n_estimators=10
+AUC: 0.7310122969328898
+--- Run 47/220
+Creating random forest with max_depth=21; remainder scoring with gini; n_estimators=30
+AUC: 0.7529079910561696
+--- Run 48/220
+Creating random forest with max_depth=21; remainder scoring with gini; n_estimators=50
+AUC: 0.7587549572311154
+--- Run 49/220
+Creating random forest with max_depth=21; remainder scoring with gini; n_estimators=70
+AUC: 0.762384705624338
+--- Run 50/220
+Creating random forest with max_depth=21; remainder scoring with gini; n_estimators=90
+AUC: 0.766942447804996
+--- Run 51/220
+Creating random forest with max_depth=23; remainder scoring with gini; n_estimators=10
+AUC: 0.7226589331448471
+--- Run 52/220
+Creating random forest with max_depth=23; remainder scoring with gini; n_estimators=30
+AUC: 0.7688258701010097
+--- Run 53/220
+Creating random forest with max_depth=23; remainder scoring with gini; n_estimators=50
+AUC: 0.7541166367980884
+--- Run 54/220
+Creating random forest with max_depth=23; remainder scoring with gini; n_estimators=70
+AUC: 0.7619895726319728
+--- Run 55/220
+Creating random forest with max_depth=23; remainder scoring with gini; n_estimators=90
+AUC: 0.7731972927985931
+--- Run 56/220
+Creating random forest with max_depth=25; remainder scoring with gini; n_estimators=10
+AUC: 0.7395104363093199
+--- Run 57/220
+Creating random forest with max_depth=25; remainder scoring with gini; n_estimators=30
+AUC: 0.7728904506362766
+--- Run 58/220
+Creating random forest with max_depth=25; remainder scoring with gini; n_estimators=50
+AUC: 0.7649853270776983
+--- Run 59/220
+Creating random forest with max_depth=25; remainder scoring with gini; n_estimators=70
+AUC: 0.7702034564326616
+--- Run 60/220
+Creating random forest with max_depth=25; remainder scoring with gini; n_estimators=90
+AUC: 0.760455140772803
+--- Run 61/220
+Creating random forest with max_depth=27; remainder scoring with gini; n_estimators=10
+AUC: 0.7393397006265885
+--- Run 62/220
+Creating random forest with max_depth=27; remainder scoring with gini; n_estimators=30
+AUC: 0.7469492450555218
+--- Run 63/220
+Creating random forest with max_depth=27; remainder scoring with gini; n_estimators=50
+AUC: 0.7584293429061963
+--- Run 64/220
+Creating random forest with max_depth=27; remainder scoring with gini; n_estimators=70
+AUC: 0.7675921047062404
+--- Run 65/220
+Creating random forest with max_depth=27; remainder scoring with gini; n_estimators=90
+AUC: 0.7760051426946788
+--- Run 66/220
+Creating random forest with max_depth=29; remainder scoring with gini; n_estimators=10
+AUC: 0.7340015970515972
+--- Run 67/220
+Creating random forest with max_depth=29; remainder scoring with gini; n_estimators=30
+AUC: 0.7349041023506706
+--- Run 68/220
+Creating random forest with max_depth=29; remainder scoring with gini; n_estimators=50
+AUC: 0.7560488894728625
+--- Run 69/220
+Creating random forest with max_depth=29; remainder scoring with gini; n_estimators=70
+AUC: 0.7713323462933042
+--- Run 70/220
+Creating random forest with max_depth=29; remainder scoring with gini; n_estimators=90
+AUC: 0.7635541161679353
+--- Run 71/220
+Creating random forest with max_depth=31; remainder scoring with gini; n_estimators=10
+AUC: 0.7259378441243591
+--- Run 72/220
+Creating random forest with max_depth=31; remainder scoring with gini; n_estimators=30
+AUC: 0.7483407586721949
+--- Run 73/220
+Creating random forest with max_depth=31; remainder scoring with gini; n_estimators=50
+AUC: 0.7544935181190574
+--- Run 74/220
+Creating random forest with max_depth=31; remainder scoring with gini; n_estimators=70
+AUC: 0.750006180628879
+--- Run 75/220
+Creating random forest with max_depth=31; remainder scoring with gini; n_estimators=90
+AUC: 0.7534461672811188
+--- Run 76/220
+Creating random forest with max_depth=33; remainder scoring with gini; n_estimators=10
+AUC: 0.7498807750564072
+--- Run 77/220
+Creating random forest with max_depth=33; remainder scoring with gini; n_estimators=30
+AUC: 0.7621944631560152
+--- Run 78/220
+Creating random forest with max_depth=33; remainder scoring with gini; n_estimators=50
+AUC: 0.7714271517959331
+--- Run 79/220
+Creating random forest with max_depth=33; remainder scoring with gini; n_estimators=70
+AUC: 0.7741768614715203
+--- Run 80/220
+Creating random forest with max_depth=33; remainder scoring with gini; n_estimators=90
+AUC: 0.7616248367866028
+--- Run 81/220
+Creating random forest with max_depth=35; remainder scoring with gini; n_estimators=10
+AUC: 0.7438278978288106
+--- Run 82/220
+Creating random forest with max_depth=35; remainder scoring with gini; n_estimators=30
+AUC: 0.7609625613747955
+--- Run 83/220
+Creating random forest with max_depth=35; remainder scoring with gini; n_estimators=50
+AUC: 0.7606993961472505
+--- Run 84/220
+Creating random forest with max_depth=35; remainder scoring with gini; n_estimators=70
+AUC: 0.7663235444183887
+--- Run 85/220
+Creating random forest with max_depth=35; remainder scoring with gini; n_estimators=90
+AUC: 0.7623853000845074
+--- Run 86/220
+Creating random forest with max_depth=37; remainder scoring with gini; n_estimators=10
+AUC: 0.7407022703403874
+--- Run 87/220
+Creating random forest with max_depth=37; remainder scoring with gini; n_estimators=30
+AUC: 0.7382539382220581
+--- Run 88/220
+Creating random forest with max_depth=37; remainder scoring with gini; n_estimators=50
+AUC: 0.7587762517392352
+--- Run 89/220
+Creating random forest with max_depth=37; remainder scoring with gini; n_estimators=70
+AUC: 0.7640697842926208
+--- Run 90/220
+Creating random forest with max_depth=37; remainder scoring with gini; n_estimators=90
+AUC: 0.7692831260792425
+--- Run 91/220
+Creating random forest with max_depth=39; remainder scoring with gini; n_estimators=10
+AUC: 0.7398801389850429
+--- Run 92/220
+Creating random forest with max_depth=39; remainder scoring with gini; n_estimators=30
+AUC: 0.7452236928789602
+--- Run 93/220
+Creating random forest with max_depth=39; remainder scoring with gini; n_estimators=50
+AUC: 0.7539816042055485
+--- Run 94/220
+Creating random forest with max_depth=39; remainder scoring with gini; n_estimators=70
+AUC: 0.7623459963872912
+--- Run 95/220
+Creating random forest with max_depth=39; remainder scoring with gini; n_estimators=90
+AUC: 0.7617052752801523
+--- Run 96/220
+Creating random forest with max_depth=41; remainder scoring with gini; n_estimators=10
+AUC: 0.7211308574868769
+--- Run 97/220
+Creating random forest with max_depth=41; remainder scoring with gini; n_estimators=30
+AUC: 0.759591033145796
+--- Run 98/220
+Creating random forest with max_depth=41; remainder scoring with gini; n_estimators=50
+AUC: 0.7593847703432772
+--- Run 99/220
+Creating random forest with max_depth=41; remainder scoring with gini; n_estimators=70
+AUC: 0.7753531245862023
+--- Run 100/220
+Creating random forest with max_depth=41; remainder scoring with gini; n_estimators=90
+AUC: 0.7654107764206831
+--- Run 101/220
+Creating random forest with max_depth=43; remainder scoring with gini; n_estimators=10
+AUC: 0.7396883508742845
+--- Run 102/220
+Creating random forest with max_depth=43; remainder scoring with gini; n_estimators=30
+AUC: 0.7644367574816918
