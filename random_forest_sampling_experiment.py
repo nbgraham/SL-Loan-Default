@@ -6,7 +6,7 @@ from model_experiment import _test_model
 
 
 def sample(x, y, i, n):
-    return custom_sample(x, y, 1-(i/n/2), 1+(i/n))
+    return custom_sample(x, y, 1.1-(i/n), 1+(i/n))
 
 
 def main(history=True):
@@ -25,10 +25,10 @@ def test_random_forest(data, target, attributes):
 
 
 def save(auc_grid, acc_grid):
-    with open('random_forest_auc.npy', 'wb') as auc:
+    with open('random_forest_sample_auc.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 
-    with open('random_forest_acc.npy', 'wb') as acc:
+    with open('random_forest_sample_acc.npy', 'wb') as acc:
         np.save(acc, acc_grid)
 
 
