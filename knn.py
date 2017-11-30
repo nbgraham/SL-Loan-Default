@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class KnnClassifier():
     def __init__(self, k, weights=None):
         self.k = k
@@ -24,12 +23,14 @@ class KnnClassifier():
 
     def predict_prob(self, x):
         normalized_xs = x / self.normalizer
+
+        results = []
         for xi in normalized_xs:
             neighbors = []
             neighbors_diffs = []
 
-            for instance in self.normalized_data:
-                diff = (instance-xi)*self.weights
+            for j in range(len(self.normalized_data)):
+                diff = (self.normalized_data[j]-xi)*self.weights
                 ssd = np.sum(diff*2)
 
                 if len(neighbors) < self.k:
@@ -40,14 +41,21 @@ class KnnClassifier():
                         while neighbors_diffs[i] < ssd:
                             i += 1
                     neighbors_diffs.insert(i, ssd)
-                    neighbors.insert(i, instance)
+                    neighbors.insert(i, j)
                 elif ssd < neighbors_diffs[-1]:
                     i = 0
                     while neighbors_diffs[i] < ssd:
                         i += 1
                     neighbors_diffs[i] = ssd
-                    neighbors[i] = instance
+                    neighbors[i] = j
+            # avg neighbors (with distances?)
+            neighbors = np.array([self.target[j] for j in neighbors])
+            neighbors_diffs = np.array(neighbors_diffs)
+            avg = (neighbors*neighbors_diffs)/np.sum(neighbors_diffs)
+            results.append(avg)
 
-        # avg neighbors (with distances?)
+        return np.array(results).reshape(-1,1)
+
+
 
 

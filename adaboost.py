@@ -10,8 +10,10 @@ def default_create_model(min_split_size=100, max_depth=4, remainder_score='entro
 
 
 class Adaboost:
-    def __init__(self, n_models=10, create_model=default_create_model):
+    def __init__(self,max_depth=4, n_models=10, learning_rate = 1, create_model=default_create_model):
         self.n_models = n_models
+        self.max_depth = max_depth
+        self.learning_rate = learning_rate
         self.create_model = create_model
         self.models = []
         self.errs = []
@@ -23,7 +25,7 @@ class Adaboost:
         weights = np.ones(len(x))/len(x)
 
         for i in range(self.n_models):
-            model = self.create_model()
+            model = self.create_model(max_depth=self.max_depth)
             model.fit(x, y, attributes, weights=weights)
             predictions = model.predict(x)
 
@@ -40,7 +42,7 @@ class Adaboost:
             self.models.append(model)
             self.errs.append(err_sum)
 
-            weight_change[weight_change == 0] = err_sum / (1 - err_sum)
+            weight_change[weight_change == 0] = err_sum / (1 - err_sum) * self.learning_rate
             weights *= weight_change
             weights /= np.sum(weights)
 

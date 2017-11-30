@@ -26,7 +26,7 @@ def test_adaboost(data, target, attributes):
 
 def create_adaboost(n_est, max_depth, learning_rate):
     print("Creating adaboost with max_depth={}; learning rate={}; n_estimators={}".format(max_depth, learning_rate, n_est))
-    return Adaboost(max_depth=max_depth, remainder_score=f, n_trees=n_est)
+    return Adaboost(max_depth=max_depth, learning_rate=learning_rate, n_models=n_est)
 
 
 if __name__ == "__main__":
