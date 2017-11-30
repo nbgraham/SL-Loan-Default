@@ -7,15 +7,24 @@ def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename=
     pods = []
     pofds = []
 
+    min_roc_dist = 1
+    max_pod = 0
+    min_pofd = 1
     max_acc = 0
     max_f = None
     for f_star in f_stars:
         if verbose and (f_star * len(f_stars)) % status_delay == 0:
             print(f_star, end=', ')
         acc, pod, pofd = analyze(pred, true, f_star)
+
         if acc > max_acc:
             max_acc = acc
             max_f = f_star
+
+        roc_dist = (1-pod)**2 + (1-pofd)*2
+        if roc_dist < min_roc_dist:
+            max_pod = pod
+            min_pofd = pofd
 
         pods.append(pod)
         pofds.append(pofd)
@@ -31,9 +40,9 @@ def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename=
     if verbose:
         print("\nMax acc: {} at f of {}".format(max_acc, max_f))
 
-    # plot_roc(filename, pofds, pods)
+    # plot_roc('t', pofds, pods)
 
-    return auc, max_acc
+    return auc, max_acc, max_pod, min_pofd
 
 
 def plot_roc(filename, pofds=None, pods=None):
