@@ -8,6 +8,10 @@ f_stars = [i/n_fs for i in range(n_fs)]
 
 
 def test_model(data, target, attributes, create_model, *grid_search_params):
+    _test_model(data, target, attributes, create_model, None, *grid_search_params)
+
+
+def _test_model(data, target, attributes, create_model, save, *grid_search_params):
     training_val_data, training_val_target, test_data, test_target = split(data, target)
     total = 1
     shape = ()
@@ -28,13 +32,13 @@ def test_model(data, target, attributes, create_model, *grid_search_params):
     experiment_data['auc_grid'] = auc_grid
     experiment_data['acc_grid'] = acc_grid
 
-    loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, [0]*len(grid_search_params),
+    loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, save, [0]*len(grid_search_params),
                          *grid_search_params)
 
     return experiment_data
 
 
-def loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, indices, *grid_search_params):
+def loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, save, indices, *grid_search_params):
     if isinstance(grid_search_params[-1], list):
         i = 0
         while not isinstance(grid_search_params[i],list):
@@ -43,10 +47,14 @@ def loop_and_test_params(experiment_data, training_val_data, training_val_target
             param = grid_search_params[i][param_i]
             new_indices = indices[:]
             new_indices[i] = param_i
-            loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, new_indices, *grid_search_params[0:i], param, *grid_search_params[i+1:])
+            loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, save, new_indices, *grid_search_params[0:i], param, *grid_search_params[i+1:])
     else:
         experiment_data['run'] += 1
         print("--- Run {}/{}".format(experiment_data['run'], experiment_data['total']))
+
+        if experiment_data['run'] % 10 == 0 and save is not None:
+            print("Saving current results")
+            save(experiment_data['auc_grid'], experiment_data['acc_grid'])
 
         auc, acc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
 

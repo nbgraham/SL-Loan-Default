@@ -2,7 +2,7 @@ import numpy as np
 
 from adaboost import Adaboost
 from data import load_loan, load_loan_no_history
-from model_experiment import test_model
+from model_experiment import _test_model
 
 
 def main(history=True):
@@ -15,13 +15,17 @@ def test_adaboost(data, target, attributes):
     _max_depths = [i for i in range(3, len(attributes) * 2)]
     learning_rates = [(i+1)/10 for i in range(10)]
 
-    experiment_data = test_model(data, target, attributes, create_adaboost, _n_estimators, _max_depths, learning_rates)
+    experiment_data = _test_model(data, target, attributes, create_adaboost, save, _n_estimators, _max_depths, learning_rates)
 
+    save(experiment_data['auc_grid'], experiment_data['acc_grid'])
+
+
+def save(auc_grid, acc_grid):
     with open('adaboost_auc.npy', 'wb') as auc:
-        np.save(auc, experiment_data['auc_grid'])
+        np.save(auc, auc_grid)
 
     with open('adaboost_acc.npy', 'wb') as acc:
-        np.save(acc, experiment_data['acc_grid'])
+        np.save(acc, acc_grid)
 
 
 def create_adaboost(n_est, max_depth, learning_rate):
