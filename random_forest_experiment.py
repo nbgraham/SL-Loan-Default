@@ -2,7 +2,7 @@ import numpy as np
 
 from random_forest import RandomForestClassifier
 from data import load_loan, load_loan_no_history
-from model_experiment import test_model
+from model_experiment import _test_model
 
 
 def main(history=True):
@@ -15,13 +15,17 @@ def test_random_forest(data, target, attributes):
     _max_depths = [i for i in range(4,12,2)]
     fs = ['gini', 'entropy']
 
-    experiment_data = test_model(data, target, attributes, create_random_forest, fs, _max_depths, _n_estimators)
+    experiment_data = _test_model(data, target, attributes, create_random_forest, save, fs, _max_depths, _n_estimators)
 
+    save(experiment_data['auc_grid'], experiment_data['acc_grid'])
+
+
+def save(auc_grid, acc_grid):
     with open('random_forest_auc.npy', 'wb') as auc:
-        np.save(auc, experiment_data['auc_grid'])
+        np.save(auc, auc_grid)
 
     with open('random_forest_acc.npy', 'wb') as acc:
-        np.save(acc, experiment_data['acc_grid'])
+        np.save(acc, acc_grid)
 
 
 def create_random_forest(f, max_depth, n_est):
