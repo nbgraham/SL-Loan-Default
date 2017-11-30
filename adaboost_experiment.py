@@ -13,7 +13,7 @@ def main(history=True):
 def test_adaboost(data, target, attributes):
     _n_estimators = [j for j in range(10,100,10)]
     _max_depths = [i for i in range(3, len(attributes) * 2)]
-    learning_rates = [i/10 for i in range(10)]
+    learning_rates = [(i+1)/10 for i in range(10)]
 
     experiment_data = test_model(data, target, attributes, create_adaboost, _n_estimators, _max_depths, learning_rates)
 
