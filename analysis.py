@@ -99,10 +99,15 @@ def rel(pred, target, plot=False):
 
         target_indices_in_prediction_range = (pred >= prediction_start)*(pred < prediction_end)
 
-        cond_event_freq = np.sum(target[target_indices_in_prediction_range])/np.sum(target_indices_in_prediction_range)
+        avg_prediction = (i+.5)/10
+        instances = np.sum(target_indices_in_prediction_range)
+        if instances > 0:
+            cond_event_freq = np.sum(target[target_indices_in_prediction_range])/instances
+        else:
+            cond_event_freq = avg_prediction
 
         cond_event_freqs.append(cond_event_freq)
-        predicted_freqs.append((i+.5)/10)
+        predicted_freqs.append(avg_prediction)
 
     perfect = [i/buckets for i in range(buckets)]
 
