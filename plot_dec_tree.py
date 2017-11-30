@@ -9,7 +9,7 @@ def plot(metric):
     entropy = a [1]
 
     scoring = ['gini', 'entropy']
-    min_split_sizes = [j for j in range(120, 260, 20)]
+    min_split_sizes = [j for j in range(50, 150, 20)]
     max_depths = [i for i in range(5, 11)]
 
     max_auc = a.max()
