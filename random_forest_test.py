@@ -2,8 +2,6 @@ from analysis import test_f_stars, rel
 from data import load_loan, split
 from random_forest import RandomForestClassifier
 
-import numpy as np
-from matplotlib import pyplot as plt
 
 def main():
     data, target, attributes = load_loan()
