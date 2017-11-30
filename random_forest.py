@@ -52,7 +52,7 @@ class RandomForestClassifier:
                                       remainder_score=self.remainder_score,
                                       attr_allowed=self.max_features(len(attributes)), show_progress=True)
 
-        samp_x, samp_y = self.sample(x,y,i,self.n_trees)
+        samp_x, samp_y = self.sample(x, y, i, self.n_trees)
         tree.fit(samp_x, samp_y, attributes)
 
         self.trees.append(tree)
