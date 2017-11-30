@@ -102,8 +102,8 @@ def custom_sample(data, target, majority_sample_rate, minority_sample_rate):
 
 
 def _sample(data, target, n_minority_samples, n_majority_samples):
-    majority = target[target == 0]
-    minority = target[target == 1]
+    majority = target == 0
+    minority = target == 1
 
     minority_indices = np.arange(len(data))[minority]
     minority_samples = np.random.choice(minority_indices, n_minority_samples)
