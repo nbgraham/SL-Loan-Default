@@ -94,6 +94,39 @@ def split(data, target, training=0.8):
     return training_data, training_target, test_data, test_target
 
 
+def custom_sample(data, target, majority_sample_rate, minority_sample_rate):
+    n_minority = np.sum(target)
+    n_majority = len(target) - n_minority
+
+    return _sample(data, target, math.floor(n_minority*minority_sample_rate), math.floor(n_majority*majority_sample_rate))
+
+
+def _sample(data, target, n_minority_samples, n_majority_samples):
+    majority = target[target == 0]
+    minority = target[target == 1]
+
+    minority_indices = np.arange(len(data))[minority]
+    minority_samples = np.random.choice(minority_indices, n_minority_samples)
+
+    majority_indices = np.arange(len(data))[majority]
+    majority_samples = np.random.choice(majority_indices, n_majority_samples)
+
+    all = np.hstack([data, target.reshape(-1,1)])
+    minority_instances = all[minority_samples]
+    majority_instances = all[majority_samples]
+
+    sample = np.vstack([minority_instances, majority_instances])
+    np.random.shuffle(sample)
+    return sample[:,:-1], sample[:,-1]
+
+
+def balanced_sampling(data, target, n_samples):
+    return _sample(data, target, math.floor(n_samples/2), math.ceil(n_samples/2))
+
+
 if __name__ == "__main__":
     a,b,c = load_loan()
+
+    data, target = custom_sample(a,b,0.1,0.2)
+
     print("Yay!")
