@@ -1,8 +1,9 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-def plot(metric):
-    with open('dec_tree_' + metric + '.npy', 'rb') as f:
+
+def plot():
+    with open('dec_tree_auc.npy', 'rb') as f:
         a = np.load(f)
 
     gini = a [0]
@@ -18,7 +19,7 @@ def plot(metric):
 
     plt.imshow(gini)
     plt.colorbar()
-    plt.title("Gini " + metric)
+    plt.title("Decision Tree Gini: AUC")
     plt.ylabel("Max depth")
     plt.yticks(range(len(max_depths)), max_depths)
     plt.xlabel("Min split size")
@@ -27,7 +28,7 @@ def plot(metric):
 
     plt.imshow(entropy)
     plt.colorbar()
-    plt.title("Entropy " + metric)
+    plt.title("Decision Tree Entropy: AUC")
     plt.ylabel("Max depth")
     plt.yticks(range(len(max_depths)), max_depths)
     plt.xlabel("Min split size")
@@ -36,5 +37,4 @@ def plot(metric):
 
 
 if __name__ == "__main__":
-    plot('auc')
-    # plot('acc')
+    plot()
