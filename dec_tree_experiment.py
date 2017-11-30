@@ -14,7 +14,7 @@ def main(history=True):
 
 def test_dec_tree(data, target, attributes):
     lower_split_bound = math.ceil(len(data) / 1000)
-    _min_samples = [j for j in range(120, 260, 20)]
+    _min_samples = [j for j in range(50, 150, 20)]
     _max_depths = [i for i in range(5,11)]
     fs = ['gini', 'entropy']
 
