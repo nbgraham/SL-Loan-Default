@@ -86,3 +86,39 @@ def analyze(pred_probs, true, f_star):
     pofd = not_happened_predicted / (not_happened_predicted + not_happened_not_predicted)
 
     return (acc, pod, pofd)
+
+
+def rel(pred, target, plot=False):
+    cond_event_freqs = []
+    predicted_freqs = []
+
+    buckets = 10
+    for i in range(buckets):
+        prediction_start = i/10
+        prediction_end = (i+1)/10
+
+        target_indices_in_prediction_range = (pred >= prediction_start)*(pred < prediction_end)
+
+        cond_event_freq = np.sum(target[target_indices_in_prediction_range])/np.sum(target_indices_in_prediction_range)
+
+        cond_event_freqs.append(cond_event_freq)
+        predicted_freqs.append((i+.5)/10)
+
+    perfect = [i/buckets for i in range(buckets)]
+
+    rel = 0
+    for i in range(len(cond_event_freqs)):
+        rel += (cond_event_freqs[i]-predicted_freqs[i])**2
+
+    if plot:
+        print("Reliability = ", rel)
+
+        plt.plot(perfect, perfect, "--", label="Perfect")
+        plt.plot(predicted_freqs, cond_event_freqs, label="Model")
+        plt.title("Reliability")
+        plt.xlabel("Predicted Event Freq")
+        plt.ylabel("Conditional Event Freq")
+        plt.legend()
+        plt.show()
+
+    return rel
