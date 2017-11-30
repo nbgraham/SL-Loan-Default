@@ -8,8 +8,13 @@ def plot(metric):
     gini = a [0]
     entropy = a [1]
 
+    scoring = ['gini', 'entropy']
     min_split_sizes = [j for j in range(40, 200, 20)]
     max_depths = [i for i in range(3, 20)]
+
+    max_auc = a.max()
+    max_run = np.unravel_index(a.argmax(), a.shape)
+    print("Max AUC: {} with max depth: {} min split size: {} and scoring: {}".format(max_auc, max_depths[max_run[1]], min_split_sizes[max_run[2]], scoring[max_run[0]]))
 
     plt.imshow(gini)
     plt.colorbar()
@@ -32,4 +37,4 @@ def plot(metric):
 
 if __name__ == "__main__":
     plot('auc')
-    plot('acc')
+    # plot('acc')
