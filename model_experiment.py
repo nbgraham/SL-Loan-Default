@@ -1,6 +1,6 @@
 import numpy as np
 
-from analysis import test_f_stars
+from analysis import test_f_stars, rel
 from data import split
 
 n_fs = 100
@@ -19,9 +19,6 @@ def _test_model(data, target, attributes, create_model, save, *grid_search_param
         total *= len(p)
         shape += (len(p),)
 
-    auc_grid = np.empty(shape)
-    acc_grid = np.empty(shape)
-
     experiment_data = {}
     experiment_data['total'] = total
     experiment_data['run'] = 0
@@ -29,8 +26,9 @@ def _test_model(data, target, attributes, create_model, save, *grid_search_param
     experiment_data['auc_best_params'] = None
     experiment_data['max_acc'] = 0
     experiment_data['acc_best_params'] = None
-    experiment_data['auc_grid'] = auc_grid
-    experiment_data['acc_grid'] = acc_grid
+    experiment_data['auc_grid'] = np.empty(shape)
+    experiment_data['acc_grid'] = np.empty(shape)
+    experiment_data['rel_grid'] = np.empty(shape)
 
     loop_and_test_params(experiment_data, training_val_data, training_val_target, attributes, create_model, save, [0]*len(grid_search_params),
                          *grid_search_params)
@@ -54,12 +52,13 @@ def loop_and_test_params(experiment_data, training_val_data, training_val_target
 
         if experiment_data['run'] % 10 == 0 and save is not None:
             print("Saving current results")
-            save(experiment_data['auc_grid'], experiment_data['acc_grid'])
+            save(experiment_data['auc_grid'], experiment_data['rel_grid'])
 
-        auc, acc = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
+        auc, acc, rel = run_one(training_val_data, training_val_target, create_model, attributes, *grid_search_params)
 
         experiment_data['auc_grid'][tuple(indices)] = auc
         experiment_data['acc_grid'][tuple(indices)] = acc
+        experiment_data['rel_grid'][tuple(indices)] = rel
         print("AUC: {}".format(auc))
 
         if auc > experiment_data['max_auc']:
@@ -83,4 +82,5 @@ def run_one(training_val_data, training_val_target, create_model, attributes, *g
 
     auc, max_acc,_,_ = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
 
-    return auc, max_acc
+    r = rel(val_preds, val_target)
+    return auc, max_acc, r

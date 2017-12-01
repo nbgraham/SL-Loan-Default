@@ -22,17 +22,18 @@ def test_dec_tree(data, target, attributes):
     _max_depths = [i for i in range(5,11)]
     fs = ['gini', 'entropy']
 
+
     experiment_data = _test_model(data, target, attributes, create_decision_tree, save, fs, _max_depths, _min_samples)
 
-    save(experiment_data['auc_grid'], experiment_data['acc_grid'])
+    save(experiment_data['auc_grid'], experiment_data['rel_grid'])
 
 
-def save(auc_grid, acc_grid):
+def save(auc_grid, rel_grid):
     with open('dec_tree_auc.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 
-    with open('dec_tree_acc.npy', 'wb') as acc:
-        np.save(acc, acc_grid)
+    with open('dec_tree_rel.npy', 'wb') as rel:
+        np.save(rel, rel_grid)
 
 
 def create_decision_tree(f, max_depth, min_sm):
