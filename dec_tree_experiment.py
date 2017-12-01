@@ -8,31 +8,48 @@ from model_experiment import _test_model
 from wrapper import Wrapper
 
 MY_CODE = True
+HISTORY = False
 
-
-def main(history=True):
-    data, target, attributes = load_loan() if history else load_loan_no_history()
+def main():
+    data, target, attributes = load_loan() if HISTORY else load_loan_no_history()
 
     test_dec_tree(data, target, attributes)
 
 
 def test_dec_tree(data, target, attributes):
-    lower_split_bound = math.ceil(len(data) / 1000)
     _min_samples = [j for j in range(50, 150, 20)]
     _max_depths = [i for i in range(5,11)]
     fs = ['gini', 'entropy']
 
-    experiment_data = _test_model(data, target, attributes, create_decision_tree, save, fs, _max_depths, _min_samples)
+    auc_total, rel_total = run_experiments(data, target, attributes, 10, fs, _max_depths, _min_samples)
 
-    save(experiment_data['auc_grid'], experiment_data['acc_grid'])
+    save(auc_total, rel_total)
 
 
-def save(auc_grid, acc_grid):
-    with open('dec_tree_auc.npy', 'wb') as auc:
+def run_experiments(data, target, attributes, n, *params):
+    auc_total = 0
+    rel_total = 0
+
+    for i in range(n):
+        print("   ---- SUPER RUN {}/{} ----".format(i+1,n))
+        experiment_data = _test_model(data, target, attributes, create_decision_tree, save, *params)
+
+        auc_total += experiment_data['auc_grid']
+        rel_total += experiment_data['rel_grid']
+
+    auc_total /= n
+    rel_total /= n
+
+    return auc_total, rel_total
+
+
+def save(auc_grid, rel_grid):
+    suffix = "" if HISTORY else "_no_history"
+    with open('dec_tree_auc' + suffix + '.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 
-    with open('dec_tree_acc.npy', 'wb') as acc:
-        np.save(acc, acc_grid)
+    with open('dec_tree_rel' + suffix + '.npy', 'wb') as rel:
+        np.save(rel, rel_grid)
 
 
 def create_decision_tree(f, max_depth, min_sm):

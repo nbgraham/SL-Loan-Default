@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename='model'):
+def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename='model', plot=False):
     pods = []
     pofds = []
 
@@ -40,7 +40,8 @@ def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename=
     if verbose:
         print("\nMax acc: {} at f of {}".format(max_acc, max_f))
 
-    # plot_roc('t', pofds, pods)
+    if plot:
+        plot_roc('t', pofds, pods)
 
     return auc, max_acc, max_pod, min_pofd
 
