@@ -38,19 +38,19 @@ def _test_model(data, target, attributes, create_model, save, *grid_search_param
                          *grid_search_params)
 
     auc_model = create_model(*experiment_data['auc_best_params'])
-    auc_model.fit(training_val_data, training_val_target)
+    auc_model.fit(training_val_data, training_val_target, attributes)
     test_pred = auc_model.predict_prob(test_data)
     auc, max_acc, _, _ = test_f_stars(test_pred, test_target, f_stars, status_delay=25)
     print("Best AUC on test data: ", auc)
 
     acc_model = create_model(*experiment_data['acc_best_params'])
-    acc_model.fit(training_val_data, training_val_target)
+    acc_model.fit(training_val_data, training_val_target, attributes)
     test_pred = acc_model.predict_prob(test_data)
     auc, max_acc, _, _ = test_f_stars(test_pred, test_target, f_stars, status_delay=25)
     print("Best accuracy on test data: ", max_acc)
 
     rel_model = create_model(*experiment_data['rel_best_params'])
-    rel_model.fit(training_val_data, training_val_target)
+    rel_model.fit(training_val_data, training_val_target, attributes)
     test_pred = rel_model.predict_prob(test_data)
     r = rel(test_pred[:,1], test_target)
     print("Best reliability on test data: ", r)
