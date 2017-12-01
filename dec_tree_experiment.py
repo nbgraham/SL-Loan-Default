@@ -8,10 +8,10 @@ from model_experiment import _test_model
 from wrapper import Wrapper
 
 MY_CODE = True
+HISTORY = True
 
-
-def main(history=True):
-    data, target, attributes = load_loan() if history else load_loan_no_history()
+def main():
+    data, target, attributes = load_loan() if HISTORY else load_loan_no_history()
 
     test_dec_tree(data, target, attributes)
 
@@ -44,10 +44,11 @@ def run_experiments(data, target, attributes, n, *params):
 
 
 def save(auc_grid, rel_grid):
-    with open('dec_tree_auc.npy', 'wb') as auc:
+    suffix = "" if HISTORY else "_no_history"
+    with open('dec_tree_auc' + suffix + '.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 
-    with open('dec_tree_rel.npy', 'wb') as rel:
+    with open('dec_tree_rel' + suffix + '.npy', 'wb') as rel:
         np.save(rel, rel_grid)
 
 
