@@ -1,7 +1,7 @@
 import numpy as np
 
 class KnnClassifier():
-    def __init__(self, k, weights=None):
+    def __init__(self, k=1, weights=None):
         self.k = k
         self.weights = weights
         self.normalized_data = None
