@@ -9,8 +9,8 @@ class KnnClassifier():
         self.target = None
         self.attributes = None
 
-    def train(self,x,y,attributes=None):
-        if self.weights is None:
+    def fit(self,x,y,attributes=None):
+        if self.weights is 1:
             self.weights = np.ones(x[0].shape)
 
         if x[0].shape != self.weights.shape:
@@ -31,7 +31,7 @@ class KnnClassifier():
 
             for j in range(len(self.normalized_data)):
                 diff = (self.normalized_data[j]-xi)*self.weights
-                ssd = np.sum(diff*2)
+                ssd = np.sum(diff**2)
 
                 if len(neighbors) < self.k:
                     i = 0
@@ -46,9 +46,8 @@ class KnnClassifier():
                     i = 0
                     while neighbors_diffs[i] < ssd:
                         i += 1
-                    neighbors_diffs[i] = ssd
-                    neighbors[i] = j
-            # avg neighbors (with distances?)
+                    neighbors_diffs.insert(i,ssd)
+                    neighbors.insert(i,j)
             neighbors = np.array([self.target[j] for j in neighbors])
             neighbors_diffs = np.array(neighbors_diffs)
             avg = (neighbors*neighbors_diffs)/np.sum(neighbors_diffs)
