@@ -1,9 +1,13 @@
 import math
 import numpy as np
 
-from decision_tree import DecisionTreeClassifier
+from decision_tree import DecisionTreeClassifier as MyDecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier as SKLearnDecisionTreeClassifier
 from data import load_loan, load_loan_no_history
 from model_experiment import _test_model
+from wrapper import Wrapper
+
+MY_CODE = True
 
 
 def main(history=True):
@@ -33,7 +37,7 @@ def save(auc_grid, acc_grid):
 
 def create_decision_tree(f, max_depth, min_sm):
     print("Creating decision tree with max_depth={}; remainder scoring with {}; min_split_size={}".format(max_depth, f, min_sm))
-    return DecisionTreeClassifier(max_depth=max_depth, remainder_score=f, min_split_size=min_sm)
+    return Wrapper(my_code=MY_CODE, my_model=MyDecisionTreeClassifier(max_depth=max_depth, remainder_score=f, min_split_size=min_sm), sklearn_model=SKLearnDecisionTreeClassifier(criterion=f, max_depth=max_depth, min_samples_split=min_sm))
 
 
 if __name__ == "__main__":

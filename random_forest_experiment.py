@@ -1,8 +1,12 @@
 import numpy as np
 
-from random_forest import RandomForestClassifier
+from random_forest import RandomForestClassifier as MyRandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier as SKLearnRandomForestClassifier
 from data import load_loan, load_loan_no_history
 from model_experiment import _test_model
+from wrapper import Wrapper
+
+MY_CODE = True
 
 
 def main(history=True):
@@ -30,7 +34,7 @@ def save(auc_grid, acc_grid):
 
 def create_random_forest(f, max_depth, n_est):
     print("Creating random forest with max_depth={}; remainder scoring with {}; n_estimators={}".format(max_depth, f, n_est))
-    return RandomForestClassifier(max_depth=max_depth, remainder_score=f, n_trees=n_est)
+    return Wrapper(my_code=MY_CODE, my_model=MyRandomForestClassifier(max_depth=max_depth, remainder_score=f, n_trees=n_est), sklearn_model=SKLearnRandomForestClassifier(max_depth=max_depth, criterion=f, n_estimators=n_est))
 
 
 if __name__ == "__main__":
