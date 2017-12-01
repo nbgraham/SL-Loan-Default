@@ -20,9 +20,10 @@ def plot_auc():
     max_run = np.unravel_index(a.argmax(), a.shape)
     print("Max AUC: {} with max depth: {} min split size: {} and scoring: {}".format(max_auc, max_depths[max_run[1]], min_split_sizes[max_run[2]], scoring[max_run[0]]))
 
+    qual = '' if HISTORY else ' No History'
     plt.imshow(gini)
     plt.colorbar()
-    plt.title("Decision Tree No History Gini: AUC")
+    plt.title("Decision Tree" + qual + " Gini: AUC")
     plt.ylabel("Max depth")
     plt.yticks(range(len(max_depths)), max_depths)
     plt.xlabel("Min split size")
@@ -31,7 +32,7 @@ def plot_auc():
 
     plt.imshow(entropy)
     plt.colorbar()
-    plt.title("Decision Tree No History Entropy: AUC")
+    plt.title("Decision Tree" + qual + " Entropy: AUC")
     plt.ylabel("Max depth")
     plt.yticks(range(len(max_depths)), max_depths)
     plt.xlabel("Min split size")
@@ -41,7 +42,7 @@ def plot_auc():
 
 def plot_rel():
     suffix = '' if HISTORY else '_no_history'
-    with open('dec_tree_auc' + suffix + '.npy', 'rb') as f:
+    with open('dec_tree_rel' + suffix + '.npy', 'rb') as f:
         a = np.load(f)
 
     gini = a [0]
