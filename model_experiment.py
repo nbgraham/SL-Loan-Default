@@ -82,5 +82,5 @@ def run_one(training_val_data, training_val_target, create_model, attributes, *g
 
     auc, max_acc,_,_ = test_f_stars(val_preds, val_target, f_stars, status_delay=25)
 
-    r = rel(val_preds, val_target)
+    r = rel(val_preds[:,1], val_target)
     return auc, max_acc, r
