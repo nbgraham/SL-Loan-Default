@@ -17,15 +17,29 @@ def main(history=True):
 
 
 def test_dec_tree(data, target, attributes):
-    lower_split_bound = math.ceil(len(data) / 1000)
     _min_samples = [j for j in range(50, 150, 20)]
     _max_depths = [i for i in range(5,11)]
     fs = ['gini', 'entropy']
 
+    auc_total, rel_total = run_experiments(data, target, attributes, 10, fs, _max_depths, _min_samples)
 
-    experiment_data = _test_model(data, target, attributes, create_decision_tree, save, fs, _max_depths, _min_samples)
+    save(auc_total, rel_total)
 
-    save(experiment_data['auc_grid'], experiment_data['rel_grid'])
+
+def run_experiments(data, target, attributes, n, *params):
+    auc_total = 0
+    rel_total = 0
+
+    for i in range(n):
+        experiment_data = _test_model(data, target, attributes, create_decision_tree, save, *params)
+
+        auc_total += experiment_data['auc_grid']
+        rel_total += experiment_data['rel_grid']
+
+    auc_total /= n
+    rel_total /= n
+
+    return auc_total, rel_total
 
 
 def save(auc_grid, rel_grid):
