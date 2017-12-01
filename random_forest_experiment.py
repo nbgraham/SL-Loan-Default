@@ -7,10 +7,11 @@ from model_experiment import _test_model
 from wrapper import Wrapper
 
 MY_CODE = True
+HISTORY = True
 
 
-def main(history=True):
-    data, target, attributes = load_loan() if history else load_loan_no_history()
+def main():
+    data, target, attributes = load_loan() if HISTORY else load_loan_no_history()
     test_random_forest(data, target, attributes)
 
 
@@ -25,10 +26,11 @@ def test_random_forest(data, target, attributes):
 
 
 def save(auc_grid, acc_grid):
-    with open('random_forest_auc.npy', 'wb') as auc:
+    suffix = "" if HISTORY else "_no_history"
+    with open('random_forest_auc' + suffix + '.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 
-    with open('random_forest_acc.npy', 'wb') as acc:
+    with open('random_forest_acc' + suffix + '.npy', 'wb') as acc:
         np.save(acc, acc_grid)
 
 
