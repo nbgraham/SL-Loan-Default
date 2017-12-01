@@ -31,6 +31,7 @@ def run_experiments(data, target, attributes, n, *params):
     rel_total = 0
 
     for i in range(n):
+        print("   ---- SUPER RUN {}/{} ----".format(i+1,n))
         experiment_data = _test_model(data, target, attributes, create_decision_tree, save, *params)
 
         auc_total += experiment_data['auc_grid']
