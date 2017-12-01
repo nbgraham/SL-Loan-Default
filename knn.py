@@ -40,7 +40,8 @@ class KnnClassifier():
                     else:
                         while neighbors_diffs[i] < ssd:
                             i += 1
-                        neighbors_diffs.insert(i, ssd) # indented this so neighbors_diffs and neighbors would have the same number of elements in the avg line
+                        # indented this so neighbors_diffs and neighbors would have the same number of elements
+                        neighbors_diffs.insert(i, ssd)
                     neighbors.insert(i, j)
                 elif ssd < neighbors_diffs[-1]:
                     i = 0

@@ -12,8 +12,7 @@ def main(history=True):
 
 def test_knn(data, target, attributes):
     _k = [1,2,3,4,5,10,25,50,100,250,500,1000] # picked some arbitrary k values
-    # _weights = [[1] for _ in attributes] # idk what I'm doing here
-    _weights = [1]
+    _weights = [[1] for _ in attributes] # idk what I'm doing here
 
     experiment_data = _test_model(data, target, attributes, create_knn, save, _k, _weights)
 
