@@ -93,7 +93,7 @@ def loop_and_test_params(experiment_data, training_val_data, training_val_target
             experiment_data['acc_best_params'] = grid_search_params
             print("New best accuracy!")
 
-        if rel > experiment_data['min_rel']:
+        if rel < experiment_data['min_rel']:
             experiment_data['min_rel'] = rel
             experiment_data['rel_best_params'] = grid_search_params
             print("New best reliability!")
