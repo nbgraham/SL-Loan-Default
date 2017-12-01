@@ -17,8 +17,8 @@ def main():
 
 
 def test_dec_tree(data, target, attributes):
-    _min_samples = [j for j in range(50, 150, 20)]
-    _max_depths = [i for i in range(5,11)]
+    _min_samples = [j for j in range(20, 120, 20)]
+    _max_depths = [i for i in range(2,8)]
     fs = ['gini', 'entropy']
 
     auc_total, rel_total = run_experiments(data, target, attributes, 10, fs, _max_depths, _min_samples)
