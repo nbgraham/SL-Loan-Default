@@ -8,7 +8,7 @@ from model_experiment import _test_model
 from wrapper import Wrapper
 
 MY_CODE = True
-HISTORY = True
+HISTORY = False
 
 def main():
     data, target, attributes = load_loan() if HISTORY else load_loan_no_history()
