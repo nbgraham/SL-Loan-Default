@@ -11,7 +11,7 @@ def main():
 
     clf = SVC()
     clf.fit(training_val_data, training_val_target)
-    pred = clf.predict_proba(test_data) # w/100 trees AUC = 0.78
+    pred = clf.predict(test_data) # w/100 trees AUC = 0.78
 
     rel(pred[:, 1], test_target, plot=True)
     f_stars = [i / 100 for i in range(100)]
