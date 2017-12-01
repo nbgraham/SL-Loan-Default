@@ -11,11 +11,11 @@ def main(history=True):
 
 
 def test_knn(data, target, attributes):
-    _k = [k for k in range(1,90,15)]
-    # _weights = [i for i in range(3, len(attributes) * 2, 5)]
+    _k = [1,2,3,4,5,10,25,50,100,250,500,1000] # picked some arbitrary k values
+    # _weights = [[1] for _ in attributes] # idk what I'm doing here
+    _weights = [1]
 
-    # experiment_data = _test_model(data, target, attributes, create_knn, save, _k, _weights)
-    experiment_data = _test_model(data, target, attributes, create_knn, save, _k)
+    experiment_data = _test_model(data, target, attributes, create_knn, save, _k, _weights)
 
     save(experiment_data['auc_grid'], experiment_data['acc_grid'])
 
@@ -29,10 +29,8 @@ def save(auc_grid, acc_grid):
 
 
 def create_knn(k, weights):
-    print("Creating knn classifer with k={}".format(k))
-    return KnnClassifier(k=k)
-    # print("Creating knn classifer with k={}; weights={}".format(k, weights))
-    # return KnnClassifier(k=k, weights=weights)
+    print("Creating knn classifer with k={}; weights={}".format(k, weights))
+    return KnnClassifier(k=k, weights=weights)
 
 
 if __name__ == "__main__":
