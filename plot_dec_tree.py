@@ -77,4 +77,4 @@ def plot_rel():
 
 
 if __name__ == "__main__":
-    plot_rel()
+    plot_auc()
