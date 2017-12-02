@@ -103,6 +103,7 @@ def analyze(pred_probs, true, f_star):
 def rel(pred, target, plot=False):
     cond_event_freqs = []
     predicted_freqs = []
+    bucket_size = []
 
     buckets = 10
     for i in range(buckets):
@@ -113,6 +114,7 @@ def rel(pred, target, plot=False):
 
         avg_prediction = (i+.5)/10
         instances = np.sum(target_indices_in_prediction_range)
+        bucket_size.append(instances/len(pred))
         if instances > 0:
             cond_event_freq = np.sum(target[target_indices_in_prediction_range])/instances
         else:
@@ -130,6 +132,7 @@ def rel(pred, target, plot=False):
     if plot:
         print("Reliability = ", rel)
 
+        plt.plot(predicted_freqs, bucket_size, "--", label="Bucket size")
         plt.plot(perfect, perfect, "--", label="Perfect")
         plt.plot(predicted_freqs, cond_event_freqs, label="Model")
         plt.title("Reliability")
