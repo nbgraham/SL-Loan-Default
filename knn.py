@@ -35,26 +35,29 @@ class KnnClassifier():
 
                 if len(neighbors) < self.k:
                     i = 0
-                    if len(neighbors_diffs) < 1:
+                    if len(neighbors_diffs) < self.k:
                         neighbors_diffs.append(ssd)
                     else:
-                        while neighbors_diffs[i] < ssd:
+                        while i < self.k and neighbors_diffs[i] < ssd:
                             i += 1
-                        # indented this so neighbors_diffs and neighbors would have the same number of elements
+                            print(i,len(neighbors_diffs))
                         neighbors_diffs.insert(i, ssd)
                     neighbors.insert(i, j)
                 elif ssd < neighbors_diffs[-1]:
                     i = 0
-                    while neighbors_diffs[i] < ssd:
+                    while i < self.k and neighbors_diffs[i] < ssd:
                         i += 1
                     neighbors_diffs.insert(i,ssd)
                     neighbors.insert(i,j)
             neighbors = np.array([self.target[j] for j in neighbors])
             neighbors_diffs = np.array(neighbors_diffs)
-            avg = (neighbors*neighbors_diffs)/np.sum(neighbors_diffs)
+            avg = np.sum(neighbors*neighbors_diffs)/np.sum(neighbors_diffs)
             results.append(avg)
 
-        return np.array(results).reshape(-1,1)
+        results = np.array(results)
+        prob0 = np.ones(results.shape)-results
+        pred = np.hstack([prob0.reshape(-1,1),results.reshape(-1,1)])
+        return pred
 
 
 
