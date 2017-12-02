@@ -3,7 +3,7 @@ import numpy as np
 
 
 def plot():
-    with open('random_forest_auc.npy', 'rb') as f:
+    with open('random_forest_auc_no_history.npy', 'rb') as f:
         a = np.load(f)
 
     gini = a [0]
