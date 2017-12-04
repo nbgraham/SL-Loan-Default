@@ -7,8 +7,9 @@ from data import load_loan, load_loan_no_history
 from model_experiment import _test_model
 from wrapper import Wrapper
 
-MY_CODE = True
-HISTORY = False
+MY_CODE = False
+HISTORY = True
+
 
 def main():
     data, target, attributes = load_loan() if HISTORY else load_loan_no_history()
@@ -17,8 +18,8 @@ def main():
 
 
 def test_dec_tree(data, target, attributes):
-    _min_samples = [j for j in range(50, 150, 20)]
-    _max_depths = [i for i in range(5,11)]
+    _min_samples = [j for j in range(20, 120, 20)]
+    _max_depths = [i for i in range(2,8)]
     fs = ['gini', 'entropy']
 
     auc_total, rel_total = run_experiments(data, target, attributes, 10, fs, _max_depths, _min_samples)
@@ -45,6 +46,7 @@ def run_experiments(data, target, attributes, n, *params):
 
 def save(auc_grid, rel_grid):
     suffix = "" if HISTORY else "_no_history"
+    suffix += '' if MY_CODE else '_sklearn'
     with open('dec_tree_auc' + suffix + '.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 

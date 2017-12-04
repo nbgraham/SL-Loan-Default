@@ -1,7 +1,9 @@
 import json
 import numpy as np
 from matplotlib import pyplot as plt
+import math
 
+from data import _sample
 
 def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename='model', plot=False):
     pods = []
@@ -101,6 +103,7 @@ def analyze(pred_probs, true, f_star):
 def rel(pred, target, plot=False):
     cond_event_freqs = []
     predicted_freqs = []
+    bucket_size = []
 
     buckets = 10
     for i in range(buckets):
@@ -111,6 +114,7 @@ def rel(pred, target, plot=False):
 
         avg_prediction = (i+.5)/10
         instances = np.sum(target_indices_in_prediction_range)
+        bucket_size.append(instances/len(pred))
         if instances > 0:
             cond_event_freq = np.sum(target[target_indices_in_prediction_range])/instances
         else:
@@ -128,6 +132,7 @@ def rel(pred, target, plot=False):
     if plot:
         print("Reliability = ", rel)
 
+        plt.plot(predicted_freqs, bucket_size, "--", label="Bucket size")
         plt.plot(perfect, perfect, "--", label="Perfect")
         plt.plot(predicted_freqs, cond_event_freqs, label="Model")
         plt.title("Reliability")
@@ -137,3 +142,33 @@ def rel(pred, target, plot=False):
         plt.show()
 
     return rel
+
+
+def inv_rel(pred, target):
+    # This is sketchy
+    SPLIT = 10
+    sample_size = math.floor(len(pred)/SPLIT)
+
+    cond_event_freqs = []
+    avg_preds = []
+
+    for cond_event_freq in [i/10 for i in range(11)]:
+        avg_avg_pred = 0
+        for j in range(SPLIT):
+            sample_pred, sample_target = _sample(pred, target, math.floor(sample_size*cond_event_freq), math.ceil(sample_size*(1-cond_event_freq)))
+
+            # avg_event_freq = np.mean(sample_target)
+            avg_pred = np.mean(sample_pred)
+            avg_avg_pred += avg_pred
+        avg_avg_pred /= SPLIT
+
+        cond_event_freqs.append(cond_event_freq)
+        avg_preds.append(avg_avg_pred)
+
+    plt.plot(cond_event_freqs, avg_preds, label='Model')
+    plt.plot(cond_event_freqs, cond_event_freqs, '--', label='Perfect')
+    plt.legend()
+    plt.xlabel('Sampled event freq')
+    plt.ylabel('Cond avg prediction')
+    plt.title("Inverse reliability")
+    plt.show()

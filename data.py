@@ -111,13 +111,19 @@ def _sample(data, target, n_minority_samples, n_majority_samples):
     majority_indices = np.arange(len(data))[majority]
     majority_samples = np.random.choice(majority_indices, n_majority_samples)
 
-    all = np.hstack([data, target.reshape(-1,1)])
+    all = np.hstack([twod(data), twod(target)])
     minority_instances = all[minority_samples]
     majority_instances = all[majority_samples]
 
     sample = np.vstack([minority_instances, majority_instances])
     np.random.shuffle(sample)
     return sample[:,:-1], sample[:,-1]
+
+
+def twod(data):
+    if len(data.shape) == 1:
+        return data.reshape(-1,1)
+    return data
 
 
 def balanced_sampling(data, target, n_samples):

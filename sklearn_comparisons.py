@@ -2,12 +2,14 @@ from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 import numpy as np
 
-from data import load_loan, split
+from data import load_loan, load_loan_no_history, split
 from analysis import rel, test_f_stars
+
+HISTORY = False
 
 
 def main():
-    data, target, attributes = load_loan()
+    data, target, attributes = load_loan() if HISTORY else load_loan_no_history()
     training_val_data, training_val_target, test_data, test_target = split(data, target)
     pred = predict(training_val_data, training_val_target, test_data, name='svc')
 
@@ -29,7 +31,7 @@ def predict(training_val_data, training_val_target, test_data, name='svc'):
     elif name == 'mlp':
         clf = MLPClassifier()
         clf.fit(training_val_data, training_val_target)
-        pred = clf.predict(test_data)
+        pred = clf.predict_proba(test_data)
 
     return pred
 
