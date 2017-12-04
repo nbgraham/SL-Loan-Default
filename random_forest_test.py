@@ -62,6 +62,8 @@ def best_rel():
 
     test_pred = clf.predict_prob(test_data)
     test_pred = best_m * test_pred + best_b
+    test_pred[test_pred<0] = 0
+    test_pred[test_pred>1] = 1
     test_rel = rel(test_pred[:,1], test_target)
     print("Original Test Rel: ", orig_test_rel, "Test Rel: ", test_rel)
 
@@ -71,4 +73,4 @@ def best_rel():
 
 
 if __name__ == "__main__":
-    main()
+    best_rel()
