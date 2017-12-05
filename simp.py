@@ -32,7 +32,7 @@ def main():
             else:
                 t_neg += 1
 
-    print(5)
+    print("Accuracy = ", (t_pos + t_neg) / len(data))
 
 
 if __name__ == "__main__":
