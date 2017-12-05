@@ -12,11 +12,11 @@ def main(history=True):
 
 
 def test_knn(data, target, attributes):
-    _k = [1,2,3,4,5,10,25,50,100,500] # picked some arbitrary k values
+    _k = [1,2,3,4,5,10,25,50,100,500]
+    _weights = [1]
     # possible_weights = [j/4-1 for j in range(0,9)]
     # a = tuple(possible_weights for _ in range(len(attributes)))
     # _weights = cartesian(a)
-    _weights = [1]
 
     experiment_data = _test_model(data, target, attributes, create_knn, save, _k, _weights)
     # experiment_data = _test_model(data, target, attributes, create_knn, save, _k, np.random.choice(_weights,10,replace=False))
