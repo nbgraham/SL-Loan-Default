@@ -13,9 +13,9 @@ def main(history=True):
 def test_adaboost(data, target, attributes):
     _n_estimators = [1,5,10,25,50]
     _max_depths = [1,3,5,10,23]
-    learning_rates = [0.1,0.25,0.5,0.75,1.0]
+    _learning_rates = [0.1,0.25,0.5,0.75,1.0]
 
-    experiment_data = _test_model(data, target, attributes, create_adaboost, save, _n_estimators, _max_depths, learning_rates)
+    experiment_data = _test_model(data, target, attributes, create_adaboost, save, _n_estimators, _max_depths, _learning_rates)
 
     save(experiment_data['auc_grid'], experiment_data['acc_grid'])
 
