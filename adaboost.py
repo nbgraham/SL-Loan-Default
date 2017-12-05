@@ -25,6 +25,7 @@ class Adaboost:
         self.models = []
         self.errs = []
 
+        # initialize weights to 1 initially
         weights = np.ones(len(x))/len(x)
 
         if self.show_progress:
@@ -37,6 +38,7 @@ class Adaboost:
         for i in range(self.n_models):
             if self.show_progress:
                 self.progress_bar.update(i)
+            # create a default decision tree with max depth then fit with current weights
             model = self.create_model(max_depth=self.max_depth)
             model.fit(x, y, attributes, weights=weights)
             predictions = model.predict(x)
