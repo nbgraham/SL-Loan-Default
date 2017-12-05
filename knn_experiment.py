@@ -36,7 +36,7 @@ def save(auc_grid, acc_grid):
 
 
 def create_knn(k, weights):
-    print("Creating knn classifer with k={}; weights={}".format(k, weights))
+    print("Creating knn classifier with k={}; weights={}".format(k, weights))
     return Wrapper(my_code=MY_CODE,my_model=KnnClassifier(k=k, weights=weights),sklearn_model=KNeighborsClassifier(n_neighbors=k,weights='uniform'))
 
 
