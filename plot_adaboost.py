@@ -5,6 +5,8 @@ import numpy as np
 def plot():
     with open('adaboost_auc.npy', 'rb') as f:
         a = np.load(f)
+    with open('adaboost_acc.npy', 'rb') as f:
+        b = np.load(f)
 
     one = a [0]
     five = a [1]
@@ -17,8 +19,12 @@ def plot():
     _learning_rates = [0.1, 0.25, 0.5, 0.75, 1.0]
 
     max_auc = a.max()
-    max_run = np.unravel_index(a.argmax(), a.shape)
-    print("Max AUC: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_auc, _max_depths[max_run[1]], _n_estimators[max_run[2]], _learning_rates[max_run[0]]))
+    max_run_auc = np.unravel_index(a.argmax(), a.shape)
+    print("Max AUC: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_auc, _max_depths[max_run_auc[1]], _n_estimators[max_run_auc[2]], _learning_rates[max_run_auc[0]]))
+    max_acc = b.max()
+    max_run_acc = np.unravel_index(b.argmax(), b.shape)
+    print("Max Accuracy: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_acc, _max_depths[max_run_acc[1]], _n_estimators[max_run_acc[2]], _learning_rates[max_run_acc[0]]))
+
 
     plt.figure(1)
     plt.imshow(one)
