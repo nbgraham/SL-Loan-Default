@@ -4,7 +4,10 @@ from knn import KnnClassifier
 from data import load_loan, load_loan_no_history
 from model_experiment import _test_model
 from sklearn.utils.extmath import cartesian
+from wrapper import Wrapper
+from sklearn.neighbors import KNeighborsClassifier
 
+MY_CODE = False
 
 def main(history=True):
     data, target, attributes = load_loan() if history else load_loan_no_history()
@@ -25,16 +28,16 @@ def test_knn(data, target, attributes):
 
 
 def save(auc_grid, acc_grid):
-    with open('knn_auc.npy', 'wb') as auc:
+    with open('knn_comparison_auc.npy', 'wb') as auc:
         np.save(auc, auc_grid)
 
-    with open('knn_acc.npy', 'wb') as acc:
+    with open('knn_comparison_acc.npy', 'wb') as acc:
         np.save(acc, acc_grid)
 
 
 def create_knn(k, weights):
     print("Creating knn classifer with k={}; weights={}".format(k, weights))
-    return KnnClassifier(k=k, weights=weights)
+    return Wrapper(my_code=MY_CODE,my_model=KnnClassifier(k=k, weights=weights),sklearn_model=KNeighborsClassifier(n_neighbors=k,weights='uniform'))
 
 
 if __name__ == "__main__":
