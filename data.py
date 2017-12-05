@@ -74,9 +74,8 @@ def load_loan_no_history():
     return data, target, attributes[:5]
 
 
-def load_loan_avg_time():
+def load_loan_avg():
     with open(r'UCI_Credit_Card.csv','r') as csvfile:
-    # with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader, None)  # skip the headers
         next(reader, None)
@@ -85,12 +84,28 @@ def load_loan_avg_time():
         targets = []
         for row in reader:
             # Exclude ID column
+            row_data = row[1:-1]
+
             avg_repayment = 0
-            for i in range(6,11):
+            for i in range(6,12):
                 avg_repayment += int(row[i])
             avg_repayment /= 5
-            row_data = row[1:-1]
             row_data.append(avg_repayment)
+
+            avg_bill = 0
+            for i in range(12, 18):
+                avg_bill += int(row[i])
+            avg_bill /= 5
+            row_data.append(avg_bill)
+
+            avg_payment = 0
+            for i in range(18, 24):
+                avg_payment += int(row[i])
+            avg_payment /= 5
+            row_data.append(avg_payment)
+
+            avg_percent_paid = avg_payment/avg_bill if avg_bill > 0 else 1
+            row_data.append(avg_percent_paid)
 
             rows.append(np.array(row_data, dtype=int))
             targets.append(row[-1])
@@ -100,8 +115,12 @@ def load_loan_avg_time():
 
     at = attributes[:]
     at.append(Attribute("Average Months Late", False))
+    at.append(Attribute("Average Bill", False))
+    at.append(Attribute("Average Repayment", False))
+    at.append(Attribute("Average Percent of Bill Paid", False))
 
     return data, target, at
+
 
 def split(data, target, training=0.8):
     indices = np.arange(len(data))
