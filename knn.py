@@ -10,7 +10,7 @@ class KnnClassifier():
         self.attributes = None
 
     def fit(self,x,y,attributes=None):
-        if self.weights is 1:
+        if self.weights == 1 or self.weights is None:
             self.weights = np.ones(x[0].shape)
 
         if x[0].shape != self.weights.shape:
