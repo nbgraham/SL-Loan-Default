@@ -16,7 +16,7 @@ def main(history=True):
 
 def test_knn(data, target, attributes):
     _k = [1,2,3,4,5,10,25,50,100,500]
-    _weights = [1]
+    _weights = [1] #uniform weights only
     # possible_weights = [j/4-1 for j in range(0,9)]
     # a = tuple(possible_weights for _ in range(len(attributes)))
     # _weights = cartesian(a)
@@ -28,11 +28,18 @@ def test_knn(data, target, attributes):
 
 
 def save(auc_grid, acc_grid):
-    with open('knn_comparison_auc.npy', 'wb') as auc:
-        np.save(auc, auc_grid)
+    if MY_CODE:
+        with open('knn_auc.npy', 'wb') as auc:
+            np.save(auc, auc_grid)
 
-    with open('knn_comparison_acc.npy', 'wb') as acc:
-        np.save(acc, acc_grid)
+        with open('knn_acc.npy', 'wb') as acc:
+            np.save(acc, acc_grid)
+    else:
+        with open('knn_comparison_auc.npy', 'wb') as auc:
+            np.save(auc, auc_grid)
+
+        with open('knn_comparison_acc.npy', 'wb') as acc:
+            np.save(acc, acc_grid)
 
 
 def create_knn(k, weights):
