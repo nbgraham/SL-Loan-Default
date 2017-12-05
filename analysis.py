@@ -45,7 +45,7 @@ def test_f_stars(pred, true, f_stars, status_delay=100, verbose=False, filename=
     if plot:
         plot_roc('t', pofds, pods)
 
-    return auc, max_acc, max_pod, min_pofd
+    return pods, pofds
 
 
 def plot_roc(filename, pofds=None, pods=None):
