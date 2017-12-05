@@ -7,23 +7,7 @@ from decision_tree import Attribute
 np.random.seed(1)
 
 
-def load_loan():
-    with open(r'UCI_Credit_Card.csv','r') as csvfile:
-    # with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader, None)  # skip the headers
-        next(reader, None)
-
-        rows = []
-        targets = []
-        for row in reader:
-            # Exclude ID column
-            rows.append(np.array(row[1:-1], dtype=int))
-            targets.append(row[-1])
-
-    data = np.vstack(rows)
-    target = np.array(targets, dtype=int)
-    attributes = [
+attributes = [
         Attribute("Balance Limit", False),
         Attribute("Sex", True),
         Attribute("Education", True),
@@ -49,6 +33,23 @@ def load_loan():
         Attribute("Payment 6 amount", False),
     ]
 
+def load_loan():
+    with open(r'UCI_Credit_Card.csv','r') as csvfile:
+    # with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader, None)  # skip the headers
+        next(reader, None)
+
+        rows = []
+        targets = []
+        for row in reader:
+            # Exclude ID column
+            rows.append(np.array(row[1:-1], dtype=int))
+            targets.append(row[-1])
+
+    data = np.vstack(rows)
+    target = np.array(targets, dtype=int)
+
     return data, target, attributes
 
 
@@ -68,16 +69,39 @@ def load_loan_no_history():
 
     data = np.vstack(rows)
     target = np.array(targets, dtype=int)
-    attributes = [
-        Attribute("Balance Limit", False),
-        Attribute("Sex", True),
-        Attribute("Education", True),
-        Attribute("Marriage", True),
-        Attribute("Age", False),
-    ]
 
-    return data, target, attributes
 
+    return data, target, attributes[:5]
+
+
+def load_loan_avg_time():
+    with open(r'UCI_Credit_Card.csv','r') as csvfile:
+    # with open(r'/home/nick/Downloads/default of credit card clients.csv','r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader, None)  # skip the headers
+        next(reader, None)
+
+        rows = []
+        targets = []
+        for row in reader:
+            # Exclude ID column
+            avg_repayment = 0
+            for i in range(6,11):
+                avg_repayment += int(row[i])
+            avg_repayment /= 5
+            row_data = row[1:-1]
+            row_data.append(avg_repayment)
+
+            rows.append(np.array(row_data, dtype=int))
+            targets.append(row[-1])
+
+    data = np.vstack(rows)
+    target = np.array(targets, dtype=int)
+
+    at = attributes[:]
+    at.append(Attribute("Average Months Late", False))
+
+    return data, target, at
 
 def split(data, target, training=0.8):
     indices = np.arange(len(data))
