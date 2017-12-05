@@ -37,11 +37,24 @@ def main():
     ada_pred = ada_clf.predict_prob(test_data)  # w/100 trees AUC = 0.78
     ada_pods, ada_pofds = test_f_stars(ada_pred, test_target, f_stars)
 
+    print("Decision Tree")
+    print(dt_pofds)
+    print(dt_pods)
+
+    print("Random Forest")
+    print(rf_pofds)
+    print(rf_pods)
+
+    print("Adaboost")
+    print(ada_pofds)
+    print(ada_pods)
+
     plt.plot(dt_pofds, dt_pods, label="Decision Tree")
     plt.plot(rf_pofds, rf_pods, label="Random Forests")
     plt.plot(ada_pofds, ada_pods, label="Adaboost")
     plt.plot([0,1],[0,1], "--", label="x = y")
 
+    plt.legend()
     plt.title('ROC')
     plt.xlabel('POFD')
     plt.ylabel('POD')
