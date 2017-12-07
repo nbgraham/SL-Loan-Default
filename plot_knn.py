@@ -3,10 +3,10 @@ import numpy as np
 
 
 def plot():
-    with open('knn_auc.npy', 'rb') as f:
+    with open('knn_auc_sklearn.npy', 'rb') as f:
         a = np.load(f)
 
-    with open('knn_acc.npy', 'rb') as f:
+    with open('knn_acc_sklearn.npy', 'rb') as f:
         b = np.load(f)
 
     _k = [1, 2, 3, 4, 5, 10, 25, 50, 100, 500]

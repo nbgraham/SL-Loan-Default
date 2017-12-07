@@ -3,9 +3,9 @@ import numpy as np
 
 
 def plot():
-    with open('adaboost_auc.npy', 'rb') as f:
+    with open('adaboost_auc_sklearn.npy', 'rb') as f:
         a = np.load(f)
-    with open('adaboost_acc.npy', 'rb') as f:
+    with open('adaboost_acc_sklearn.npy', 'rb') as f:
         b = np.load(f)
 
     one = a [0]
@@ -20,10 +20,10 @@ def plot():
 
     max_auc = a.max()
     max_run_auc = np.unravel_index(a.argmax(), a.shape)
-    print("Max AUC: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_auc, _max_depths[max_run_auc[1]], _n_estimators[max_run_auc[2]], _learning_rates[max_run_auc[0]]))
+    print("Max AUC: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_auc, _max_depths[max_run_auc[1]], _n_estimators[max_run_auc[0]], _learning_rates[max_run_auc[2]]))
     max_acc = b.max()
     max_run_acc = np.unravel_index(b.argmax(), b.shape)
-    print("Max Accuracy: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_acc, _max_depths[max_run_acc[1]], _n_estimators[max_run_acc[2]], _learning_rates[max_run_acc[0]]))
+    print("Max Accuracy: {} with max depth: {} n_estimators: {} and learning rate: {}".format(max_acc, _max_depths[max_run_acc[1]], _n_estimators[max_run_acc[0]], _learning_rates[max_run_acc[2]]))
 
 
     plt.figure(1)
