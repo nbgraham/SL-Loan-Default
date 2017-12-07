@@ -3,11 +3,11 @@ import numpy as np
 from knn import KnnClassifier
 from data import load_loan, load_loan_no_history
 from model_experiment import _test_model
-from sklearn.utils.extmath import cartesian
 from wrapper import Wrapper
 from sklearn.neighbors import KNeighborsClassifier
 
-MY_CODE = False
+MY_CODE = True
+VALIDATION_RUNS = 5
 
 def main(history=True):
     data, target, attributes = load_loan() if history else load_loan_no_history()
@@ -17,15 +17,27 @@ def main(history=True):
 def test_knn(data, target, attributes):
     _k = [1,2,3,4,5,10,25,50,100,500]
     _weights = [1] #uniform weights only
-    # possible_weights = [j/4-1 for j in range(0,9)]
-    # a = tuple(possible_weights for _ in range(len(attributes)))
-    # _weights = cartesian(a)
 
-    experiment_data = _test_model(data, target, attributes, create_knn, save, _k, _weights)
-    # experiment_data = _test_model(data, target, attributes, create_knn, save, _k, np.random.choice(_weights,10,replace=False))
+    auc_total, rel_total = run_experiments(data, target, attributes, VALIDATION_RUNS, _k, _weights)
 
-    save(experiment_data['auc_grid'], experiment_data['acc_grid'])
+    save(auc_total, rel_total)
 
+
+def run_experiments(data, target, attributes, n, *params):
+    auc_total = 0
+    rel_total = 0
+
+    for i in range(n):
+        print("   ---- SUPER RUN {}/{} ----".format(i+1,n))
+        experiment_data = _test_model(data, target, attributes, create_knn, save, *params)
+
+        auc_total += experiment_data['auc_grid']
+        rel_total += experiment_data['rel_grid']
+
+    auc_total /= n
+    rel_total /= n
+
+    return auc_total, rel_total
 
 def save(auc_grid, acc_grid):
     if MY_CODE:
@@ -35,10 +47,10 @@ def save(auc_grid, acc_grid):
         with open('knn_acc.npy', 'wb') as acc:
             np.save(acc, acc_grid)
     else:
-        with open('knn_comparison_auc.npy', 'wb') as auc:
+        with open('knn_auc_sklearn.npy', 'wb') as auc:
             np.save(auc, auc_grid)
 
-        with open('knn_comparison_acc.npy', 'wb') as acc:
+        with open('knn_acc_sklearn.npy', 'wb') as acc:
             np.save(acc, acc_grid)
 
 
