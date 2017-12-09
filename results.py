@@ -17,10 +17,10 @@ def main():
     training_val_data, training_val_target, test_data, test_target = split(data, target)
 
 
-    # clf = Wrapper(my_code=False, my_model=MyDecisionTreeClassifier(max_depth=7, min_split_size=110, remainder_score='entropy'), sklearn_model=SKLearnDecisionTreeClassifier(criterion='entropy', max_depth=7, min_samples_split=110))
+    clf = Wrapper(my_code=False, my_model=MyDecisionTreeClassifier(max_depth=7, min_split_size=110, remainder_score='entropy'), sklearn_model=SKLearnDecisionTreeClassifier(criterion='entropy', max_depth=7, min_samples_split=110))
     # clf = Wrapper(my_code=False, my_model=MyRandomForestClassifier(max_depth=5, n_trees=70, remainder_score='gini'), sklearn_model=SKLearnRandomForestClassifier(criterion='gini', max_depth=5, n_estimators=70))
-    clf = Wrapper(my_code=True, my_model=MyAdaboostClassifier(max_depth=1, learning_rate=1, n_models=50),sklearn_model=AdaBoostClassifier(base_estimator=SKLearnDecisionTreeClassifier(criterion='entropy', max_depth=1), n_estimators=50,learning_rate=1))
-    # clf = Wrapper(my_code=True, my_model=MyKnnClassifier(k=1, weights=None),sklearn_model=SKLearnKNeighborsClassifier(n_neighbors=1, weights='uniform'))
+    # clf = Wrapper(my_code=False, my_model=MyAdaboostClassifier(max_depth=1, learning_rate=1, n_models=50),sklearn_model=AdaBoostClassifier(base_estimator=SKLearnDecisionTreeClassifier(criterion='entropy', max_depth=3), n_estimators=50,learning_rate=0.1))
+    # clf = Wrapper(my_code=False, my_model=MyKnnClassifier(k=100, weights=None),sklearn_model=SKLearnKNeighborsClassifier(n_neighbors=100, weights='uniform'))
 
     clf.fit(training_val_data, training_val_target, attributes)
 
